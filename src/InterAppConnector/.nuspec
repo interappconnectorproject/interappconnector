@@ -1,0 +1,14 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+	<metadata>
+		<id>InterAppConnector</id>
+		<version>1.0.0</version>
+		<authors>Giuseppe Cramarossa</authors>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>InterAppConnector is an integration library that helps to create libraries and functions that can be easily implemented in every project by using a common protocol
+		</description>
+	</metadata>
+	<files>
+		<file src="bin\Debug\*.dll" target="lib" />
+	</files>
+</package>
