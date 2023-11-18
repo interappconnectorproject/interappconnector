@@ -47,7 +47,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"gcramarossa_interappconnector-sandbox" /o:"gcramarossa" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths=tests/codecoverage/coverage.xml
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"interappconnectorproject_interappconnector" /o:"interappconnectorproject" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.vscoveragexml.reportsPaths=tests/codecoverage/coverage.xml
           dotnet build
           dotnet-coverage collect "dotnet test" -f xml -o "tests/codecoverage/coverage.xml"
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
