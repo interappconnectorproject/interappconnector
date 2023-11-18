@@ -21,15 +21,16 @@ namespace InterAppConnector
         {
             StringBuilder description = new StringBuilder();
             int lineLength;
+            int divisor = 1;
+
+            if (simulateConsoleException)
+            {
+                divisor = 0;
+            }
 
             try
             {
-                lineLength = Console.WindowWidth;
-
-                if (simulateConsoleException)
-                {
-                    throw new Exception("A generic exception used just for unit test and code coverage purpose");
-                }
+                lineLength = Console.WindowWidth / divisor;
             }
             catch 
             {

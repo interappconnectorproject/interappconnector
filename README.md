@@ -1,7 +1,16 @@
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=interappconnectorproject_interappconnector&metric=coverage)](https://sonarcloud.io/summary/new_code?id=interappconnectorproject_interappconnector)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=interappconnectorproject_interappconnector&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=interappconnectorproject_interappconnector)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=interappconnectorproject_interappconnector&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=interappconnectorproject_interappconnector)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=interappconnectorproject_interappconnector&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=interappconnectorproject_interappconnector)
+
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=interappconnectorproject_interappconnector&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=interappconnectorproject_interappconnector)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=interappconnectorproject_interappconnector&metric=bugs)](https://sonarcloud.io/summary/new_code?id=interappconnectorproject_interappconnector)
+
 # InterAppConnector
 
-InterAppConnector is an integration library that helps to create modules that can be easily integrated in different applications and project types by using a common protocol
-You can create one or more modules (called commands) and call them in the same mode
+InterAppConnector is an integration library that helps to create modules that can be easily integrated in different applications and project types by using a common protocol.
+
+You can create one or more modules (called commands) and call them in the same mode without worrying about the project type
 
 # Features
 
