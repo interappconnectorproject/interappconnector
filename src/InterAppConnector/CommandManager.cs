@@ -38,7 +38,7 @@ namespace InterAppConnector
                 foreach (ParameterDescriptor item in argument)
                 {
                     ParameterDescriptor? findArgument = (from value in _arguments[selectedCommand].Arguments.Values
-                                                         where value.Name.ToLower().Trim() == item.Name.ToLower().Trim() 
+                                                         where value.Name.ToLower().Trim() == item.Name.ToLower().Trim()
                                                          || value.Aliases.Any(s => s.ToLower().Trim() == item.Name.ToLower().Trim())
                                                          select value).SingleOrDefault();
 
@@ -147,6 +147,10 @@ namespace InterAppConnector
                                         }
                                     }
                                 }
+                                else
+                                {
+                                    throw new DuplicateObjectException(methodsWithCustomInputStringAttribute[1].Name, new List<string> { "[CustomInputString] attribute" }, methodsWithCustomInputStringAttribute[0].Name, "Error in class " + parameterType.Name + ". It is expected that only one method may have the [CustomInputString] attribute, but there are " + methodsWithCustomInputStringAttribute.Count + " methods with this attribute");
+                                }
                             }
                             else
                             {
@@ -197,7 +201,7 @@ namespace InterAppConnector
                                     throw new ArgumentException();
                                 }
                             }
-                            catch(Exception exc)
+                            catch (Exception exc)
                             {
                                 throw new ArgumentException("The value provided to argument " + item.Name + " is not acceptable. Please provide a valid value", item.Name, exc);
                             }

@@ -151,7 +151,11 @@ namespace InterAppConnector.Test.Library
         }
 
         [TestCase("abcd123a")]
-        public void SetArgument_ParameterWithWrongCustomString_ReturnArgumentSet(string value)
+        [TestCase("ab")]
+        [TestCase("abc11234")]
+        [TestCase("abc£1234")]
+        [TestCase("")]
+        public void SetArgument_ParameterWithWrongCustomString_ReturnArgumentException(string value)
         {
             Argument arguments = Argument.Parse(new[] { "setargument", "-plate", value }, "-");
             CommandManager manager = new CommandManager();
@@ -166,7 +170,22 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
-        public void SetArgument_ParameterWithExceptionInConstructor_ReturnArgumentSet()
+        public void SetArgument_ArgumentWithDuplicateInputStringFormat_ReturnArgumentException()
+        {
+            Argument arguments = Argument.Parse(new[] { "setargument", "-duplicatecustomstringformatclass", "test" }, "-");
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<SetArgumentCommand, SetArgumentMethodDataModel>();
+
+            Action wrongAction = () =>
+            {
+                manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
+            };
+
+            Assert.That(wrongAction, Throws.InstanceOf<DuplicateObjectException>());
+        }
+
+        [Test]
+        public void SetArgument_ParameterWithExceptionInConstructor_ReturnArgumentException()
         {
             Argument arguments = Argument.Parse(new[] { "setargument", "-guid", "xxx" }, "-");
             CommandManager manager = new CommandManager();
@@ -181,7 +200,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
-        public void SetArgument_ParameterWithExceptionInCustomConstructor_ReturnArgumentSet()
+        public void SetArgument_ParameterWithExceptionInCustomConstructor_ReturnArgumentException()
         {
             Argument arguments = Argument.Parse(new[] { "setargument", "-custom", "," }, "-");
             CommandManager manager = new CommandManager();
@@ -198,7 +217,7 @@ namespace InterAppConnector.Test.Library
 
         [TestCase("-anotherlicenseplate")]
         [TestCase("-anotherlicenseplate2")]
-        public void SetArgument_ParameterWithExceptionInConstructorCustomString_ReturnArgumentSet(string value)
+        public void SetArgument_ParameterWithExceptionInConstructorCustomString_ReturnArgumentException(string value)
         {
             Argument arguments = Argument.Parse(new[] { "setargument", value, "$" }, "-");
             CommandManager manager = new CommandManager();
