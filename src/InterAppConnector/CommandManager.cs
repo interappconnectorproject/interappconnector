@@ -105,8 +105,15 @@ namespace InterAppConnector
                                         ConstructorInfo? constructor = parameterType.GetConstructor(new[] { typeof(string) });
                                         if (constructor != null)
                                         {
-                                            _arguments[selectedCommand].Arguments[findArgument.Name].Value = constructor.Invoke(new[] { item.Value });
-                                            _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], constructor.Invoke(new[] { item.Value }));
+                                            try
+                                            {
+                                                _arguments[selectedCommand].Arguments[findArgument.Name].Value = constructor.Invoke(new[] { item.Value });
+                                                _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], constructor.Invoke(new[] { item.Value }));
+                                            }
+                                            catch (Exception exc)
+                                            {
+                                                throw new ArgumentException("The value provided to argument " + item.Name + " is not acceptable. Reason: " + exc.GetBaseException().Message, item.Name, exc.InnerException);
+                                            }
                                         }
                                         else
                                         {
@@ -119,8 +126,15 @@ namespace InterAppConnector
                                         {
                                             if (methodsWithCustomInputStringAttribute[0].GetParameters()[0].ParameterType == typeof(string))
                                             {
-                                                _arguments[selectedCommand].Arguments[findArgument.Name].Value = methodsWithCustomInputStringAttribute[0].Invoke(null, new[] { item.Value });
-                                                _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], methodsWithCustomInputStringAttribute[0].Invoke(null, new[] { item.Value }));
+                                                try
+                                                {
+                                                    _arguments[selectedCommand].Arguments[findArgument.Name].Value = methodsWithCustomInputStringAttribute[0].Invoke(null, new[] { item.Value });
+                                                    _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], methodsWithCustomInputStringAttribute[0].Invoke(null, new[] { item.Value }));
+                                                }
+                                                catch (Exception exc)
+                                                {
+                                                    throw new ArgumentException("The value provided to argument " + item.Name + " is not acceptable. Reason: " + exc.GetBaseException().Message, item.Name, exc.InnerException);
+                                                }
                                             }
                                             else
                                             {
@@ -138,15 +152,29 @@ namespace InterAppConnector
                             {
                                 if (string.IsNullOrEmpty(_arguments[selectedCommand].GetCustomAttribute<CustomInputStringAttribute>(findArgument.Name).StringFormat))
                                 {
-                                    // Do not use the ParseExact method. Use the constructor with the parameter as value
-                                    _arguments[selectedCommand].Arguments[findArgument.Name].Value = parameterType.GetConstructor(new[] { typeof(string) }).Invoke(new[] { item.Value });
-                                    _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], parameterType.GetConstructor(new[] { typeof(string) }).Invoke(new[] { item.Value }));
+                                    try
+                                    {
+                                        // Do not use the ParseExact method. Use the constructor with the parameter as value
+                                        _arguments[selectedCommand].Arguments[findArgument.Name].Value = parameterType.GetConstructor(new[] { typeof(string) }).Invoke(new[] { item.Value });
+                                        _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], parameterType.GetConstructor(new[] { typeof(string) }).Invoke(new[] { item.Value }));
+                                    }
+                                    catch (Exception exc)
+                                    {
+                                        throw new ArgumentException("The value provided to argument " + item.Name + " is not acceptable. Reason: " + exc.GetBaseException().Message, item.Name, exc.InnerException);
+                                    }
                                 }
                                 else
                                 {
-                                    // Use ParseExact method
-                                    _arguments[selectedCommand].Arguments[findArgument.Name].Value = parameterType.GetMethod("ParseExact").Invoke(null, new[] { item.Value, _arguments[selectedCommand].GetCustomAttribute<CustomInputStringAttribute>(findArgument.Name).StringFormat, CultureInfo.InvariantCulture });
-                                    _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], parameterType.GetMethod("ParseExact").Invoke(null, new[] { item.Value, _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).GetCustomAttribute<CustomInputStringAttribute>().StringFormat, CultureInfo.InvariantCulture }));
+                                    try
+                                    {
+                                        // Use ParseExact method
+                                        _arguments[selectedCommand].Arguments[findArgument.Name].Value = parameterType.GetMethod("ParseExact").Invoke(null, new[] { item.Value, _arguments[selectedCommand].GetCustomAttribute<CustomInputStringAttribute>(findArgument.Name).StringFormat, CultureInfo.InvariantCulture });
+                                        _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], parameterType.GetMethod("ParseExact").Invoke(null, new[] { item.Value, _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).GetCustomAttribute<CustomInputStringAttribute>().StringFormat, CultureInfo.InvariantCulture }));
+                                    }
+                                    catch (Exception exc)
+                                    {
+                                        throw new ArgumentException("The value provided to argument " + item.Name + " is not acceptable. Reason: " + exc.GetBaseException().Message, item.Name, exc.InnerException);
+                                    }
                                 }
                             }
                         }

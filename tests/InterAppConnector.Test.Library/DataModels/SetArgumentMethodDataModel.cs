@@ -9,6 +9,11 @@ namespace InterAppConnector.Test.Library.DataModels
         [Alias("plate")]
         public LicensePlate? LicensePlate { get; set; }
 
+        public LicensePlate AnotherLicensePlate { get; set; }
+
+        [CustomInputString]
+        public LicensePlate AnotherLicensePlate2 { get; set; }
+
         [Alias("char")]
         [Alias("onechar")]
         public char? SingleChar { get; set; }

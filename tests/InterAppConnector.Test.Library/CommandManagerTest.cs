@@ -150,6 +150,68 @@ namespace InterAppConnector.Test.Library
             Assert.That(((LicensePlate) manager._arguments[typeof(SetArgumentCommand).FullName].Arguments["plate"].Value).Plate, Is.EqualTo("abcd1234"));
         }
 
+        [TestCase("abcd123a")]
+        public void SetArgument_ParameterWithWrongCustomString_ReturnArgumentSet(string value)
+        {
+            Argument arguments = Argument.Parse(new[] { "setargument", "-plate", value }, "-");
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<SetArgumentCommand, SetArgumentMethodDataModel>();
+
+            Action wrongAction = () =>
+            {
+                manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
+            };
+
+            Assert.That(wrongAction, Throws.ArgumentException);
+        }
+
+        [Test]
+        public void SetArgument_ParameterWithExceptionInConstructor_ReturnArgumentSet()
+        {
+            Argument arguments = Argument.Parse(new[] { "setargument", "-guid", "xxx" }, "-");
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<SetArgumentCommand, SetArgumentMethodDataModel>();
+
+            Action wrongAction = () =>
+            {
+                manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
+            };
+
+            Assert.That(wrongAction, Throws.ArgumentException);
+        }
+
+        [Test]
+        public void SetArgument_ParameterWithExceptionInCustomConstructor_ReturnArgumentSet()
+        {
+            Argument arguments = Argument.Parse(new[] { "setargument", "-custom", "," }, "-");
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<SetArgumentCommand, SetArgumentMethodDataModel>();
+
+            Action wrongAction = () =>
+            {
+                manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
+            };
+
+            Assert.That(wrongAction, Throws.ArgumentException
+                                        .And.Message.Contain("No elements was added to the list. Please specify at least one string"));
+        }
+
+        [TestCase("-anotherlicenseplate")]
+        [TestCase("-anotherlicenseplate2")]
+        public void SetArgument_ParameterWithExceptionInConstructorCustomString_ReturnArgumentSet(string value)
+        {
+            Argument arguments = Argument.Parse(new[] { "setargument", value, "$" }, "-");
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<SetArgumentCommand, SetArgumentMethodDataModel>();
+
+            Action wrongAction = () =>
+            {
+                manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
+            };
+
+            Assert.That(wrongAction, Throws.ArgumentException);
+        }
+
         [Test]
         public void SetArgument_ParameterWithMultipleAliases_ReturnArgumentSet()
         {
