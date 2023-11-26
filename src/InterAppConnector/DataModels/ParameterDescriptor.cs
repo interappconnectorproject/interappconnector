@@ -42,6 +42,11 @@
         public bool IsMandatory { get; set; }
 
         /// <summary>
+        /// Check if the value is set by the user or not
+        /// </summary>
+        internal bool IsSetByUser { get; set; }
+
+        /// <summary>
         /// The argument aliases
         /// </summary>
         public List<string> Aliases { get; set; } = new List<string>();

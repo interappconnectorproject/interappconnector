@@ -64,6 +64,7 @@ namespace InterAppConnector
                             {
                                 _arguments[selectedCommand].Arguments[findArgument.Name].Value = EnumHelper.GetEnumerationFieldByValue(parameterType, item.Value.ToString());
                                 _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], EnumHelper.GetEnumerationFieldByValue(parameterType, item.Value.ToString()));
+                                _arguments[selectedCommand].Arguments[findArgument.Name].IsSetByUser = true;
                             }
                             catch (ArgumentException exc)
                             {
@@ -109,6 +110,7 @@ namespace InterAppConnector
                                             {
                                                 _arguments[selectedCommand].Arguments[findArgument.Name].Value = constructor.Invoke(new[] { item.Value });
                                                 _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], constructor.Invoke(new[] { item.Value }));
+                                                _arguments[selectedCommand].Arguments[findArgument.Name].IsSetByUser = true;
                                             }
                                             catch (Exception exc)
                                             {
@@ -130,6 +132,7 @@ namespace InterAppConnector
                                                 {
                                                     _arguments[selectedCommand].Arguments[findArgument.Name].Value = methodsWithCustomInputStringAttribute[0].Invoke(null, new[] { item.Value });
                                                     _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], methodsWithCustomInputStringAttribute[0].Invoke(null, new[] { item.Value }));
+                                                    _arguments[selectedCommand].Arguments[findArgument.Name].IsSetByUser = true;
                                                 }
                                                 catch (Exception exc)
                                                 {
@@ -161,6 +164,7 @@ namespace InterAppConnector
                                         // Do not use the ParseExact method. Use the constructor with the parameter as value
                                         _arguments[selectedCommand].Arguments[findArgument.Name].Value = parameterType.GetConstructor(new[] { typeof(string) }).Invoke(new[] { item.Value });
                                         _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], parameterType.GetConstructor(new[] { typeof(string) }).Invoke(new[] { item.Value }));
+                                        _arguments[selectedCommand].Arguments[findArgument.Name].IsSetByUser = true;
                                     }
                                     catch (Exception exc)
                                     {
@@ -174,6 +178,7 @@ namespace InterAppConnector
                                         // Use ParseExact method
                                         _arguments[selectedCommand].Arguments[findArgument.Name].Value = parameterType.GetMethod("ParseExact").Invoke(null, new[] { item.Value, _arguments[selectedCommand].GetCustomAttribute<CustomInputStringAttribute>(findArgument.Name).StringFormat, CultureInfo.InvariantCulture });
                                         _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], parameterType.GetMethod("ParseExact").Invoke(null, new[] { item.Value, _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).GetCustomAttribute<CustomInputStringAttribute>().StringFormat, CultureInfo.InvariantCulture }));
+                                        _arguments[selectedCommand].Arguments[findArgument.Name].IsSetByUser = true;
                                     }
                                     catch (Exception exc)
                                     {
@@ -195,6 +200,7 @@ namespace InterAppConnector
                                 {
                                     _arguments[selectedCommand].Arguments[findArgument.Name].Value = Convert.ChangeType(item.Value, parameterType);
                                     _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], Convert.ChangeType(item.Value, parameterType));
+                                    _arguments[selectedCommand].Arguments[findArgument.Name].IsSetByUser = true;
                                 }
                                 else
                                 {
@@ -300,9 +306,20 @@ namespace InterAppConnector
                         }
                         else
                         {
-                            if (Nullable.GetUnderlyingType(parameterProperty.PropertyType) == null)
+                            if (parameterProperty.PropertyType.IsValueType)
                             {
-                                descriptor.IsMandatory = true;
+                                if (Nullable.GetUnderlyingType(parameterProperty.PropertyType) == null)
+                                {
+                                    descriptor.IsMandatory = true;
+                                }
+                            }
+                            else
+                            {
+                                if (parameterProperty.GetValue(parameterObject) != null)
+                                {
+                                    parameterProperty.SetValue(parameterObject, null);
+                                    descriptor.IsMandatory = true;                                  
+                                }
                             }
                         }
 
