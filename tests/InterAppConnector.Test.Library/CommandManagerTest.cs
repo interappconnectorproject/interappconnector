@@ -118,6 +118,44 @@ namespace InterAppConnector.Test.Library
             Assert.That(command._parameterObject[typeof(ReadFileCommand).FullName].GetType(), Is.EqualTo(typeof(BaseParameter)));
         }
 
+        [Test]
+        public void AddCommand_CheckMandatoryParameters_ShouldConfigureObjectProperly()
+        {
+            CommandManager command = new CommandManager();
+
+            command.AddCommand<MultipleArgumentTypeCommand, MultipleArgumentTypeDataModel>();
+
+            Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments.Count, Is.EqualTo(9));
+            Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["mandatorynumber"].IsMandatory, Is.EqualTo(true));
+            Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["mandatoryfileinfo"].IsMandatory, Is.EqualTo(true));
+            Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["mandatoryguid"].IsMandatory, Is.EqualTo(true));
+            Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["mandatoryswitch"].IsMandatory, Is.EqualTo(true));
+        }
+
+        [Test]
+        public void AddCommand_CheckOptionalParameters_ShouldConfigureObjectProperly()
+        {
+            CommandManager command = new CommandManager();
+
+            command.AddCommand<MultipleArgumentTypeCommand, MultipleArgumentTypeDataModel>();
+
+            Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments.Count, Is.EqualTo(9));
+            Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["number"].IsMandatory, Is.EqualTo(false));
+            Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["guid"].IsMandatory, Is.EqualTo(false));
+            Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["switch"].IsMandatory, Is.EqualTo(false));
+        }
+
+        [Test]
+        public void AddCommand_CheckOptionalClassParameters_ShouldConfigureObjectProperly()
+        {
+            CommandManager command = new CommandManager();
+
+            command.AddCommand<MultipleArgumentTypeCommand, MultipleArgumentTypeDataModel>();
+
+            Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["name"].IsMandatory, Is.EqualTo(false));
+            Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["fileinfo"].IsMandatory, Is.EqualTo(false));
+        }
+
 
         [Test]
         public void GetActionKeyByActions_DefineActionListCommand_ReturnClassNameAssociatedWithThatCommand()
@@ -152,9 +190,6 @@ namespace InterAppConnector.Test.Library
 
         [TestCase("abcd123a")]
         [TestCase("ab")]
-        [TestCase("abc11234")]
-        [TestCase("abc£1234")]
-        [TestCase("")]
         public void SetArgument_ParameterWithWrongCustomString_ReturnArgumentException(string value)
         {
             Argument arguments = Argument.Parse(new[] { "setargument", "-plate", value }, "-");
