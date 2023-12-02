@@ -1,0 +1,13 @@
+changelog:
+  exclude:
+    labels:
+      - documentation
+      - area-quality
+      - area-automation
+  categories:
+    - title: Bug fixes
+      labels:
+        - bug
+    - title: New Features
+      labels:
+        - enhancement

@@ -8,7 +8,7 @@
 
 # InterAppConnector
 
-InterAppConnector is an integration library that helps to create modules that can be easily integrated in different applications and project types by using a common protocol.
+InterAppConnector is an integration library that helps to create modules that can be easily integrated in different applications and project types by using a common message format.
 
 You can create one or more modules (called commands) and call them in the same mode without worrying about the project type
 
@@ -33,7 +33,8 @@ You can create one or more modules (called commands) and call them in the same m
 
 2. Create a class for command and name it `SampleCommand`
 	1. Add a `Command` attribute and implement `ICommand<SampleArgument>` interface 
-	2. Include in `Main` method your business logic 
+	2. In `Main` method write your business logic code
+
 	```csharp
 	[Command("hello", Description = "A simple hello command")]
 	public class SampleCommand : ICommand<SampleArgument>
@@ -44,8 +45,10 @@ You can create one or more modules (called commands) and call them in the same m
 		}
 	}
 	```
+
 3. Depending on your project type:
 	- In a console application, add in your `Program.cs` file in `Main(string[] args)` this code
+
 		```csharp
 		CommandManager command = new CommandManager();
 		command.AddCommand<SampleCommand, SampleArgument>();
@@ -53,6 +56,7 @@ You can create one or more modules (called commands) and call them in the same m
 		InterAppCommunication connector = new InterAppCommunication(command);
 		connector.ExecuteAsInteractiveCLI(args);
 		``` 
+
 	-  In other applications:
 		- Parameters must be defined in a `dynamic` object where the name of the properties are the name of the arguments
 		- Replace `ExecuteAsInteractiveCLI(string[])` method of the example above with `ExecuteAsBatch(string, dynamic)` method
@@ -72,9 +76,11 @@ You can create one or more modules (called commands) and call them in the same m
 
 5. In order to get the result
 	- If you are creating a console application, open the Command Prompt in Windows or Bash in Linux and type the command below (it is assumed that the project name is called SampleProgram)
+
 		```batch
 		SampleProgram.exe hello -name John
 		```
+
 		You will see a green message with the date and time in current datetime format, the message status followed by the success code and the message `Hello, John`. A typical execution of the program generate the following output:
 		
 		`[11/10/2023 23:50:34] SUCCESS (0): Hello, John`

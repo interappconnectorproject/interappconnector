@@ -1,0 +1,34 @@
+name: Publish package to NuGet gallery
+on:
+    push:
+      tags:
+        - '*'
+jobs:
+    publish:
+        name: Publish NuGet package
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+              with:
+                fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+            - name: Build solution
+              shell: bash
+              run : |
+                dotnet build -c Release
+            - name: Test solution
+              shell: bash
+              run : |
+                dotnet test
+            - uses: actions/upload-artifact@v3
+              with:
+                name: InterAppConnector ${{github.ref_name}}
+                path: |
+                    src/InterAppConnector/bin/Release/*.nupkg
+            - name: Publish Package
+              shell: bash
+              env:
+                NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
+              run : |
+                nuget push src/InterAppConnector/bin/Release/*.nupkg -ApiKey "$NUGET_TOKEN" -Source https://api.nuget.org/v3/index.json
+                
