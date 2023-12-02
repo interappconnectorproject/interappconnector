@@ -93,4 +93,4 @@ For advanced scenarios and in order to learn how to use the library efficiently,
 
 ## General documentation
 
-The general documentation is available in the Wiki section. Actually it is not yet completed, so stay tuned for further information.
+The general documentation is available in the [Github Wiki](https://github.com/interappconnectorproject/interappconnector/wiki) section.
