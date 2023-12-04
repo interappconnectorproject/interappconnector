@@ -63,13 +63,13 @@ namespace InterAppConnector
                             try
                             {
                                 _arguments[selectedCommand].Arguments[findArgument.Name].Value = EnumHelper.GetEnumerationFieldByValue(parameterType, item.Value.ToString());
-                                _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], EnumHelper.GetEnumerationFieldByValue(parameterType, item.Value.ToString()));
+                                _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName)!.SetValue(_parameterObject[selectedCommand], EnumHelper.GetEnumerationFieldByValue(parameterType, item.Value.ToString()));
                                 _arguments[selectedCommand].Arguments[findArgument.Name].IsSetByUser = true;
                             }
                             catch (ArgumentException exc)
                             {
                                 /*
-                                 * If something went wrong with the parse of the value, thow an exception.
+                                 * If something went wrong with the parse of the value, throw an exception.
                                  * You may need to change this exception with a more specialized exception,
                                  * but the InnerException property should contain the exception raised by
                                  * EnumHelper.GetFieldName()
@@ -109,7 +109,7 @@ namespace InterAppConnector
                                             try
                                             {
                                                 _arguments[selectedCommand].Arguments[findArgument.Name].Value = constructor.Invoke(new[] { item.Value });
-                                                _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], constructor.Invoke(new[] { item.Value }));
+                                                _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName)!.SetValue(_parameterObject[selectedCommand], constructor.Invoke(new[] { item.Value }));
                                                 _arguments[selectedCommand].Arguments[findArgument.Name].IsSetByUser = true;
                                             }
                                             catch (Exception exc)
@@ -130,8 +130,8 @@ namespace InterAppConnector
                                             {
                                                 try
                                                 {
-                                                    _arguments[selectedCommand].Arguments[findArgument.Name].Value = methodsWithCustomInputStringAttribute[0].Invoke(null, new[] { item.Value });
-                                                    _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], methodsWithCustomInputStringAttribute[0].Invoke(null, new[] { item.Value }));
+                                                    _arguments[selectedCommand].Arguments[findArgument.Name].Value = methodsWithCustomInputStringAttribute[0].Invoke(null, new[] { item.Value })!;
+                                                    _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName)!.SetValue(_parameterObject[selectedCommand], methodsWithCustomInputStringAttribute[0].Invoke(null, new[] { item.Value }));
                                                     _arguments[selectedCommand].Arguments[findArgument.Name].IsSetByUser = true;
                                                 }
                                                 catch (Exception exc)
@@ -141,12 +141,12 @@ namespace InterAppConnector
                                             }
                                             else
                                             {
-                                                throw new TypeMismatchException(typeof(string).FullName, methodsWithCustomInputStringAttribute[0].GetParameters()[0].ParameterType.FullName, "", "Error in argument definition. It is expected a string, but the actual type is " + methodsWithCustomInputStringAttribute[0].GetParameters()[0].ParameterType.FullName);
+                                                throw new TypeMismatchException(typeof(string).FullName!, methodsWithCustomInputStringAttribute[0].GetParameters()[0].ParameterType.FullName!, "", "Error in argument definition. It is expected a string, but the actual type is " + methodsWithCustomInputStringAttribute[0].GetParameters()[0].ParameterType.FullName);
                                             }
                                         }
                                         else
                                         {
-                                            throw new TypeMismatchException(typeof(string).FullName, "More than 1 parameter", "", "Error in argument definition. It is expected one parameter of type string, but the method has multiple parameters.");
+                                            throw new TypeMismatchException(typeof(string).FullName!, "More than 1 parameter", "", "Error in argument definition. It is expected one parameter of type string, but the method has multiple parameters.");
                                         }
                                     }
                                 }
@@ -162,8 +162,8 @@ namespace InterAppConnector
                                     try
                                     {
                                         // Do not use the ParseExact method. Use the constructor with the parameter as value
-                                        _arguments[selectedCommand].Arguments[findArgument.Name].Value = parameterType.GetConstructor(new[] { typeof(string) }).Invoke(new[] { item.Value });
-                                        _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], parameterType.GetConstructor(new[] { typeof(string) }).Invoke(new[] { item.Value }));
+                                        _arguments[selectedCommand].Arguments[findArgument.Name].Value = parameterType.GetConstructor(new[] { typeof(string) })!.Invoke(new[] { item.Value });
+                                        _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName)!.SetValue(_parameterObject[selectedCommand], parameterType.GetConstructor(new[] { typeof(string) })!.Invoke(new[] { item.Value }));
                                         _arguments[selectedCommand].Arguments[findArgument.Name].IsSetByUser = true;
                                     }
                                     catch (Exception exc)
@@ -176,8 +176,8 @@ namespace InterAppConnector
                                     try
                                     {
                                         // Use ParseExact method
-                                        _arguments[selectedCommand].Arguments[findArgument.Name].Value = parameterType.GetMethod("ParseExact").Invoke(null, new[] { item.Value, _arguments[selectedCommand].GetCustomAttribute<CustomInputStringAttribute>(findArgument.Name).StringFormat, CultureInfo.InvariantCulture });
-                                        _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], parameterType.GetMethod("ParseExact").Invoke(null, new[] { item.Value, _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).GetCustomAttribute<CustomInputStringAttribute>().StringFormat, CultureInfo.InvariantCulture }));
+                                        _arguments[selectedCommand].Arguments[findArgument.Name].Value = parameterType.GetMethod("ParseExact")!.Invoke(null, new[] { item.Value, _arguments[selectedCommand].GetCustomAttribute<CustomInputStringAttribute>(findArgument.Name).StringFormat, CultureInfo.InvariantCulture })!;
+                                        _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName)!.SetValue(_parameterObject[selectedCommand], parameterType.GetMethod("ParseExact")!.Invoke(null, new[] { item.Value, _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName)!.GetCustomAttribute<CustomInputStringAttribute>()!.StringFormat, CultureInfo.InvariantCulture }));
                                         _arguments[selectedCommand].Arguments[findArgument.Name].IsSetByUser = true;
                                     }
                                     catch (Exception exc)
@@ -199,7 +199,7 @@ namespace InterAppConnector
                                 if (parameterType != typeof(bool) && item.Value.GetType() != typeof(bool))
                                 {
                                     _arguments[selectedCommand].Arguments[findArgument.Name].Value = Convert.ChangeType(item.Value, parameterType);
-                                    _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName).SetValue(_parameterObject[selectedCommand], Convert.ChangeType(item.Value, parameterType));
+                                    _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName)!.SetValue(_parameterObject[selectedCommand], Convert.ChangeType(item.Value, parameterType));
                                     _arguments[selectedCommand].Arguments[findArgument.Name].IsSetByUser = true;
                                 }
                                 else
@@ -213,6 +213,28 @@ namespace InterAppConnector
                             }
                         }
 
+                        if (_arguments[selectedCommand].GetCustomAttribute<ValueValidatorAttribute>(findArgument.Name) != null)
+                        {
+                            ValueValidatorAttribute validator = _arguments[selectedCommand].GetCustomAttribute<ValueValidatorAttribute>(findArgument.Name);
+
+                            if (validator.ValueValidatorType.GetInterface(typeof(IValueValidator).Name) != null)
+                            {
+                                object constructor = validator.ValueValidatorType.GetConstructor(Array.Empty<Type>())!.Invoke(Array.Empty<object>());
+
+                                MethodInfo validateInputMethod = (from methood in constructor.GetType().GetMethods()
+                                                                  where methood.Name == "ValidateValue"
+                                                                  select methood).First();
+
+                                if (!((bool)validateInputMethod.Invoke(constructor, new[] { _arguments[selectedCommand].Arguments[findArgument.Name].Value })!))
+                                {
+                                    throw new ArgumentException("The value provided to argument " + item.Name + " is not valid according to the validation procedure");
+                                }
+                            }
+                            else
+                            {
+                                throw new TypeMismatchException(typeof(IValueValidator).Name, "", "", validator.ValueValidatorType.Name + " doesn't have an interface of type " + typeof(IValueValidator).Name);
+                            }
+                        }
                     }
                 }
             }
@@ -236,7 +258,7 @@ namespace InterAppConnector
             int commandsImplementedNumber = 0;
             foreach (Type item in command.GetType().GetInterfaces())
             {
-                if (item.GetInterface(typeof(ICommand).FullName) != null)
+                if (item.GetInterface(typeof(ICommand).FullName!) != null)
                 {
                     commandsImplementedNumber++;
                 }
@@ -244,7 +266,7 @@ namespace InterAppConnector
 
             if (commandsImplementedNumber > 1)
             {
-                throw new MultipleCommandNotAllowedException(command.GetType().FullName, command.GetType().FullName + " has multiple ICommand class implemented. An action may have only one ICommand implementation");
+                throw new MultipleCommandNotAllowedException(command.GetType().FullName!, command.GetType().FullName + " has multiple ICommand class implemented. An action may have only one ICommand implementation");
             }
 
             string className = command.GetType().FullName;
@@ -257,7 +279,7 @@ namespace InterAppConnector
 
                 if (command.GetType().GetCustomAttribute<CommandAttribute>() != null)
                 {
-                    argument.Action.AddRange(command.GetType().GetCustomAttribute<CommandAttribute>().Name.ToLower().Trim().Split(" "));
+                    argument.Action.AddRange(command.GetType().GetCustomAttribute<CommandAttribute>()!.Name.ToLower().Trim().Split(" "));
                 }
                 else
                 {
@@ -360,8 +382,8 @@ namespace InterAppConnector
 
                         if (parameterProperty.GetCustomAttribute<DescriptionAttribute>() != null)
                         {
-                            descriptor.Description = parameterProperty.GetCustomAttribute<DescriptionAttribute>().Description;
-                            attributes.Remove(parameterProperty.GetCustomAttribute<DescriptionAttribute>());
+                            descriptor.Description = parameterProperty.GetCustomAttribute<DescriptionAttribute>()!.Description;
+                            attributes.Remove(parameterProperty.GetCustomAttribute<DescriptionAttribute>()!);
                         }
 
                         descriptor.Value = parameterProperty.GetValue(parameterObject);
@@ -395,8 +417,8 @@ namespace InterAppConnector
                 if (selectedCommand != default)
                 {
                     Type genericType = _commands[selectedCommand].GetType().GetInterfaces()[0].GetGenericArguments()[0];
-                    object commandConstructor = _commands[selectedCommand].GetType().GetConstructor(Type.EmptyTypes).Invoke(new object[] { });
-                    _result = (string)typeof(ICommand<>).MakeGenericType(genericType).GetMethod("Main").Invoke(commandConstructor, new object[] { parameters });
+                    object commandConstructor = _commands[selectedCommand].GetType().GetConstructor(Type.EmptyTypes)!.Invoke(Array.Empty<object>());
+                    _result = (string)typeof(ICommand<>).MakeGenericType(genericType).GetMethod("Main")!.Invoke(commandConstructor, new object[] { parameters })!;
                     commandExecuted = true;
                 }
             }

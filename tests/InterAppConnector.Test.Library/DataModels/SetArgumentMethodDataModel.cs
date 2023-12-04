@@ -1,5 +1,6 @@
 ﻿using InterAppConnector.Attributes;
 using InterAppConnector.Enumerations;
+using InterAppConnector.Test.Library.Validators;
 
 namespace InterAppConnector.Test.Library.DataModels
 {
@@ -7,7 +8,7 @@ namespace InterAppConnector.Test.Library.DataModels
     {
         [CustomInputString("llllnnnn")]
         [Alias("plate")]
-        public LicensePlate? LicensePlate { get; set; }
+        public LicensePlate LicensePlate { get; set; }
 
         public LicensePlate AnotherLicensePlate { get; set; }
 
@@ -50,5 +51,35 @@ namespace InterAppConnector.Test.Library.DataModels
         public DuplicateCustomStringFormatClass DuplicateCustom { get; set; }
 
         public WrongParameterNumberInputStringFormatClass WrongParameterNumberParameter { get; set; }
+
+        [ValueValidator(typeof(AgeValidator))]
+        public uint Age { get; set; }
+
+        [ValueValidator(typeof(GuidValidator))]
+        public Guid ValidatedGuid { get; set; }
+
+        [ValueValidator(typeof(GuidValidator))]
+        public Guid ValidateOtherGuid { get; set; }
+
+        [ValueValidator(typeof(CustomStringClassValidator))]
+        public CustomStringFormatClass ValidatedCustomClass { get; set; }
+
+        [CustomInputString("llllnnnn")]
+        [ValueValidator(typeof(LicensePlateValidator))]
+        public LicensePlate ValidatedLicensePlate { get; set; }
+
+        [CustomInputString()]
+        [ValueValidator(typeof(LicensePlateValidator))]
+        public LicensePlate AnotherValidatedLicensePlate { get; set; }
+
+        [ValueValidator(typeof(LicensePlate))]
+        public LicensePlate WrongValidator { get; set; }
+
+        /*
+         * To check. There may be a bug here 
+         * [ValueValidator(typeof(CustomStringClassvalidator))]
+        [CustomInputString]
+        public CustomStringFormatClass OtherValidatedCustomClass { get; set; } 
+        */
     }
 }
