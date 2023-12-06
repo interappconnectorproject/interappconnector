@@ -188,8 +188,141 @@ namespace InterAppConnector.Test.Library
             Assert.That(((LicensePlate) manager._arguments[typeof(SetArgumentCommand).FullName].Arguments["plate"].Value).Plate, Is.EqualTo("abcd1234"));
         }
 
+        [Test]
+        public void SetArgument_WithValidatorNumberAndValueInRange_ReturnArgumentSet()
+        {
+            Argument arguments = Argument.Parse(new[] { "setargument", "-age", "34" }, "-");
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<SetArgumentCommand, SetArgumentMethodDataModel>();
+
+            manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
+
+            Assert.That((manager._arguments[typeof(SetArgumentCommand).FullName].Arguments["age"].Value), Is.EqualTo(34));
+        }
+
+        [TestCase("validatedguid")]
+        [TestCase("validateotherguid")]
+        public void SetArgument_WithValidatorNumberCustomInputStringAndValueInRange_ReturnArgumentSet(string argument)
+        {
+            Argument arguments = Argument.Parse(new[] { "setargument", "-" + argument, "e6aad9ac-2205-44ba-bb28-0ad0a1c75a0f" }, "-");
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<SetArgumentCommand, SetArgumentMethodDataModel>();
+
+            manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
+
+            Assert.That(manager._arguments[typeof(SetArgumentCommand).FullName].Arguments[argument].Value, Is.EqualTo(Guid.Parse("e6aad9ac-2205-44ba-bb28-0ad0a1c75a0f")));
+        }
+
+        [TestCase("validatedguid")]
+        [TestCase("validateotherguid")]
+        public void SetArgument_WithValidatorNumberCustomInputStringAndValueNotInRange_ReturnArgumentSet(string argument)
+        {
+            Argument arguments = Argument.Parse(new[] { "setargument", "-" + argument, "e6aad9ac-2205-44ba-bb28-0ad0a1c75a0c" }, "-");
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<SetArgumentCommand, SetArgumentMethodDataModel>();
+
+            Action wrongAction = () =>
+            {
+                manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
+            };
+
+            Assert.That(wrongAction, Throws.ArgumentException);
+        }
+
+        [TestCase("validatedlicenseplate")]
+        [TestCase("anothervalidatedlicenseplate")]
+        public void SetArgument_WithValidatorCustomInputStringAndValueInRange_ReturnArgumentSet(string argument)
+        {
+            Argument arguments = Argument.Parse(new[] { "setargument", "-" + argument, "aaaa1111" }, "-");
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<SetArgumentCommand, SetArgumentMethodDataModel>();
+
+            manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
+
+            Assert.That(((LicensePlate)manager._arguments[typeof(SetArgumentCommand).FullName].Arguments[argument].Value).Plate, Is.EqualTo("aaaa1111"));
+        }
+
+        [TestCase("validatedcustomclass")]
+        //[TestCase("othervalidatedcustomclass")]
+        public void SetArgument_WithAnotherValidatorCustomInputStringAndValueInRange_ReturnArgumentSet(string argument)
+        {
+            Argument arguments = Argument.Parse(new[] { "setargument", "-" + argument, "apple,pear" }, "-");
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<SetArgumentCommand, SetArgumentMethodDataModel>();
+
+            manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
+
+            Assert.That(((CustomStringFormatClass)manager._arguments[typeof(SetArgumentCommand).FullName].Arguments[argument].Value).List.Count, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void SetArgument_WithValidatorNumberAndValueNotInRange_ReturnArgumentException()
+        {
+            Argument arguments = Argument.Parse(new[] { "setargument", "-age", "200" }, "-");
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<SetArgumentCommand, SetArgumentMethodDataModel>();
+
+            Action wrongAction = () =>
+            {
+                manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
+            };
+
+            Assert.That(wrongAction, Throws.ArgumentException);
+        }
+
+        [Test]
+        public void SetArgument_WithWrongValidator_ReturnArgumentException()
+        {
+            Argument arguments = Argument.Parse(new[] { "setargument", "-wrongvalidator", "aaaa1111" }, "-");
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<SetArgumentCommand, SetArgumentMethodDataModel>();
+
+            Action wrongAction = () =>
+            {
+                manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
+            };
+
+            Assert.That(wrongAction, Throws.InstanceOf<TypeMismatchException>());
+        }
+
+        [TestCase("validatedlicenseplate")]
+        [TestCase("anothervalidatedlicenseplate")]
+        public void SetArgument_WithValidatorCustomInputStringAndValueNotInRange_ReturnArgumentException(string argument)
+        {
+            Argument arguments = Argument.Parse(new[] { "setargument", "-" + argument, "aaaa1112" }, "-");
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<SetArgumentCommand, SetArgumentMethodDataModel>();
+
+            Action wrongAction = () =>
+            {
+                manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
+            };
+
+            Assert.That(wrongAction, Throws.ArgumentException);
+        }
+
+        [TestCase("validatedcustomclass")]
+        //[TestCase("othervalidatedcustomclass")]
+        public void SetArgument_WithAnotherValidatorCustomInputStringAndValueNotInRange_ReturnArgumentException(string argument)
+        {
+            Argument arguments = Argument.Parse(new[] { "setargument", "-" + argument, "apple,grapefruitpear" }, "-");
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<SetArgumentCommand, SetArgumentMethodDataModel>();
+
+            Action wrongAction = () =>
+            {
+                manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
+            };
+
+            Assert.That(wrongAction, Throws.ArgumentException);
+        }
+
         [TestCase("abcd123a")]
         [TestCase("ab")]
+        //
+        [TestCase("abc11234")]
+        [TestCase(" ")]
+        //
         public void SetArgument_ParameterWithWrongCustomString_ReturnArgumentException(string value)
         {
             Argument arguments = Argument.Parse(new[] { "setargument", "-plate", value }, "-");
