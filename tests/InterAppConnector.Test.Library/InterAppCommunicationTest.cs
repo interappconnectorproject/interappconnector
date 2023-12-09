@@ -8,7 +8,6 @@ using InterAppConnector.Test.Library.Enumerations;
 using InterAppConnector.Exceptions;
 using InterAppConnector.Test.SampleCommandsLibrary.DataModels;
 using InterAppConnector.Test.SampleCommandsLibrary;
-using System.Diagnostics;
 
 namespace InterAppConnector.Test.Library
 {
@@ -155,6 +154,64 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        public void ExecuteAsBatch_WithMissingValueTypeArguments_ReturnMissingArgumentExceptions()
+        {
+            CommandManager command = new CommandManager();
+            command.AddCommand<ValueTypeCommand, ValueTypeDataModel>();
+            dynamic dynamic = new ExpandoObject();
+
+            Action connectorAction = () =>
+            {
+                InterAppCommunication connector = new InterAppCommunication(command);
+                CommandResult<int> commandExecution = connector.ExecuteAsBatch<int>("valuetype", dynamic);
+            };
+
+            Assert.That(connectorAction, Throws.InstanceOf<MissingMandatoryArgumentException>()
+                .And.Property("MissingParameters").Count.EqualTo(1));
+        }
+
+        [Test]
+        public void ExecuteAsBatch_WithMissingOptionalValueTypeArguments_ReturnValue()
+        {
+            CommandManager command = new CommandManager();
+            command.AddCommand<ValueTypeCommand, ValueTypeDataModel>();
+            dynamic dynamic = new ExpandoObject();
+            dynamic.MandatoryValue = 5;
+            int returnedValue = 0;
+
+            Action connectorAction = () =>
+            {
+                InterAppCommunication connector = new InterAppCommunication(command);
+                CommandResult<int> commandExecution = connector.ExecuteAsBatch<int>("valuetype", dynamic);
+                returnedValue = commandExecution.Message;
+            };
+
+            Assert.That(connectorAction, Throws.Nothing);
+            Assert.That(returnedValue, Is.EqualTo(5));
+        }
+
+        [Test]
+        public void ExecuteAsBatch_WithAllValueTypeArgumentsSet_ReturnValue()
+        {
+            CommandManager command = new CommandManager();
+            command.AddCommand<ValueTypeCommand, ValueTypeDataModel>();
+            dynamic dynamic = new ExpandoObject();
+            dynamic.MandatoryValue = 5;
+            dynamic.OptionalValue = 15;
+            int returnedValue = 0;
+
+            Action connectorAction = () =>
+            {
+                InterAppCommunication connector = new InterAppCommunication(command);
+                CommandResult<int> commandExecution = connector.ExecuteAsBatch<int>("valuetype", dynamic);
+                returnedValue = commandExecution.Message;
+            };
+
+            Assert.That(connectorAction, Throws.Nothing);
+            Assert.That(returnedValue, Is.EqualTo(20));
+        }
+
+        [Test]
         public void ExecuteAsBatch_WithWrongAction_ShouldNotReturnAnException()
         {
             CommandManager command = new CommandManager();
@@ -189,7 +246,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
-        public void ExecuteAsInteractiveCLI_WithWrongEnum_ReturnSuccessfulStatusCode()
+        public void ExecuteAsInteractiveCLI_WithWrongEnum_ReturnFailureStatusCode()
         {
             CommandManager command = new CommandManager();
             command.AddCommand<VehicleTestCommand, Vehicle>();
@@ -206,11 +263,11 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
-        public void ExecuteAsInteractiveCLI_WithMissingMandatoryParameter_ReturnFailureStatusCode()
+        public void ExecuteAsInteractiveCLI_WithMissingValueTypeArguments_ReturnMissingArgumentMessage()
         {
             CommandManager command = new CommandManager();
-            command.AddCommand<VehicleTestCommand, Vehicle>();
-            string[] arguments = { "testvehicle", "-type", "motorcycle" };
+            command.AddCommand<ValueTypeCommand, ValueTypeDataModel>();
+            string[] arguments = "valuetype".Split(" ");
 
             Action connectorAction = () =>
             {
@@ -219,7 +276,41 @@ namespace InterAppConnector.Test.Library
             };
 
             Assert.That(connectorAction, Throws.Nothing);
-            Assert.That(Environment.ExitCode, Is.Not.EqualTo(0));
+            Assert.That(Environment.ExitCode, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void ExecuteAsInteractiveCLI_WithMissingOptionalValueTypeArguments_ReturnValue()
+        {
+            CommandManager command = new CommandManager();
+            command.AddCommand<ValueTypeCommand, ValueTypeDataModel>();
+            string[] arguments = "valuetype -mandatoryvalue 5".Split(" ");
+
+            Action connectorAction = () =>
+            {
+                InterAppCommunication connector = new InterAppCommunication(command);
+                connector.ExecuteAsInteractiveCLI(arguments);
+            };
+
+            Assert.That(connectorAction, Throws.Nothing);
+            Assert.That(Environment.ExitCode, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void ExecuteAsInteractiveCLI_WithAllValueTypeArgumentsSet_ReturnValue()
+        {
+            CommandManager command = new CommandManager();
+            command.AddCommand<ValueTypeCommand, ValueTypeDataModel>();
+            string[] arguments = "valuetype -mandatoryvalue 5 -optionalvalue 15".Split(" ");
+
+            Action connectorAction = () =>
+            {
+                InterAppCommunication connector = new InterAppCommunication(command);
+                connector.ExecuteAsInteractiveCLI(arguments);
+            };
+
+            Assert.That(connectorAction, Throws.Nothing);
+            Assert.That(Environment.ExitCode, Is.EqualTo(0));
         }
 
         [Test]
