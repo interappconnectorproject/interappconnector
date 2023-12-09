@@ -86,13 +86,9 @@ namespace InterAppConnector
                     {
                         foreach (ParameterDescriptor item in _commandManager._arguments[selectedAction].Arguments.Values)
                         {
-                            if (item.IsMandatory)
+                            if (item.IsMandatory && !item.IsSetByUser)
                             {
-                                if (item.Value == null)
-                                {
-                                    missingParameters.Add(item.Name);
-                                }
-                                
+                                missingParameters.Add(item.Name);
                             }
                         }
 
@@ -154,12 +150,9 @@ namespace InterAppConnector
                 {
                     foreach (ParameterDescriptor item in _commandManager._arguments[selectedAction].Arguments.Values)
                     {
-                        if (item.IsMandatory)
+                        if (item.IsMandatory && !item.IsSetByUser)
                         {
-                            if (item.Value == null)
-                            {
-                                missingParameters.Add(item.Name);
-                            }
+                            missingParameters.Add(item.Name);
                         }
                     }
 
