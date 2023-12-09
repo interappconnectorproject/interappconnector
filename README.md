@@ -8,7 +8,7 @@
 
 # InterAppConnector
 
-InterAppConnector is an integration library that helps to create modules that can be easily integrated in different applications and project types by using a common message format.
+InterAppConnector is a library that helps to create modules that can be easily integrated in different applications and project types by using a common message format.
 
 You can create one or more modules (called commands) and call them in the same mode without worrying about the project type
 
@@ -27,7 +27,7 @@ You can create one or more modules (called commands) and call them in the same m
 	```csharp
 	public class SampleArgument
 	{
-		public string Name {get; set;}
+		public string Name {get; set;} = string.Empty;
 	}
 	```
 
@@ -61,16 +61,16 @@ You can create one or more modules (called commands) and call them in the same m
 		- Parameters must be defined in a `dynamic` object where the name of the properties are the name of the arguments
 		- Replace `ExecuteAsInteractiveCLI(string[])` method of the example above with `ExecuteAsBatch(string, dynamic)` method
 
-		```csharp
-		dynamic arguments = new ExpandoObject();
-		arguments.Name = "John";
-		
-		CommandManager command = new CommandManager();
-		command.AddCommand<SampleCommand, SampleArgument>();
+			```csharp
+			dynamic arguments = new ExpandoObject();
+			arguments.Name = "John";
+			
+			CommandManager command = new CommandManager();
+			command.AddCommand<SampleCommand, SampleArgument>();
 
-		InterAppCommunication connector = new InterAppCommunication(command);
-		CommandResult<SampleArgument> result = connector.ExecuteAsBatch<SampleArgument>("hello", arguments);
-		```
+			InterAppCommunication connector = new InterAppCommunication(command);
+			CommandResult<SampleArgument> result = connector.ExecuteAsBatch<SampleArgument>("hello", arguments);
+			```
 
 4. Build the project if you have created a console application, otherwise go to step 5
 
