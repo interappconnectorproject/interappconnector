@@ -75,6 +75,10 @@ namespace InterAppConnector.Test.Library.DataModels
         [ValueValidator(typeof(LicensePlate))]
         public LicensePlate WrongValidator { get; set; }
 
+        [ValueValidator(typeof(BirthDateValidator))]
+        [CustomInputString("ddMMyyyy")]
+        public DateTime BirthDate { get; set; }
+
         /*
          * To check. There may be a bug here 
          * [ValueValidator(typeof(CustomStringClassvalidator))]

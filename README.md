@@ -35,16 +35,16 @@ You can create one or more modules (called commands) and call them in the same m
 	1. Add a `Command` attribute and implement `ICommand<SampleArgument>` interface 
 	2. In `Main` method write your business logic code
 
-	```csharp
-	[Command("hello", Description = "A simple hello command")]
-	public class SampleCommand : ICommand<SampleArgument>
-	{
-		public string Main(SampleArgument command)
+		```csharp
+		[Command("hello", Description = "A simple hello command")]
+		public class SampleCommand : ICommand<SampleArgument>
 		{
-			return CommandOutput.Ok("Hello, " + command.Name);
+			public string Main(SampleArgument command)
+			{
+				return CommandOutput.Ok("Hello, " + command.Name);
+			}
 		}
-	}
-	```
+		```
 
 3. Depending on your project type:
 	- In a console application, add in your `Program.cs` file in `Main(string[] args)` this code
