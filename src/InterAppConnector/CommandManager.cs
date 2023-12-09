@@ -176,8 +176,8 @@ namespace InterAppConnector
                                     try
                                     {
                                         // Use ParseExact method
-                                        _arguments[selectedCommand].Arguments[findArgument.Name].Value = parameterType.GetMethod("ParseExact")!.Invoke(null, new[] { item.Value, _arguments[selectedCommand].GetCustomAttribute<CustomInputStringAttribute>(findArgument.Name).StringFormat, CultureInfo.InvariantCulture })!;
-                                        _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName)!.SetValue(_parameterObject[selectedCommand], parameterType.GetMethod("ParseExact")!.Invoke(null, new[] { item.Value, _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName)!.GetCustomAttribute<CustomInputStringAttribute>()!.StringFormat, CultureInfo.InvariantCulture }));
+                                        _arguments[selectedCommand].Arguments[findArgument.Name].Value = parameterType.GetMethod("ParseExact", new[] {typeof(string), typeof(string), typeof(IFormatProvider)})!.Invoke(null, new[] { item.Value, _arguments[selectedCommand].GetCustomAttribute<CustomInputStringAttribute>(findArgument.Name).StringFormat, CultureInfo.InvariantCulture })!;
+                                        _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName)!.SetValue(_parameterObject[selectedCommand], parameterType.GetMethod("ParseExact", new[] { typeof(string), typeof(string), typeof(IFormatProvider) })!.Invoke(null, new[] { item.Value, _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName)!.GetCustomAttribute<CustomInputStringAttribute>()!.StringFormat, CultureInfo.InvariantCulture }));
                                         _arguments[selectedCommand].Arguments[findArgument.Name].IsSetByUser = true;
                                     }
                                     catch (Exception exc)

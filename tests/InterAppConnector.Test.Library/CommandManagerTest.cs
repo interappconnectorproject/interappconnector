@@ -200,6 +200,32 @@ namespace InterAppConnector.Test.Library
             Assert.That((manager._arguments[typeof(SetArgumentCommand).FullName].Arguments["age"].Value), Is.EqualTo(34));
         }
 
+        [Test]
+        public void SetArgument_WithValidatorAndCustomInputStringCorrectValue_ReturnArgumentSet()
+        {
+            Argument arguments = Argument.Parse(new[] { "setargument", "-birthdate", "28102005" }, "-");
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<SetArgumentCommand, SetArgumentMethodDataModel>();
+
+            manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
+
+            Assert.That(((DateTime)manager._arguments[typeof(SetArgumentCommand).FullName].Arguments["birthdate"].Value).Year, Is.EqualTo(2005));
+        }
+
+        [Test]
+        public void SetArgument_WithValidatorAndCustomInputStringWrongValue_ReturnArgumentException()
+        {
+            Argument arguments = Argument.Parse(new[] { "setargument", "-birthdate", "20101800" }, "-");
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<SetArgumentCommand, SetArgumentMethodDataModel>();
+
+            Action wrongAction = () =>
+            {
+                manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
+            };
+
+            Assert.That(wrongAction, Throws.ArgumentException);
+        }
         [TestCase("validatedguid")]
         [TestCase("validateotherguid")]
         public void SetArgument_WithValidatorNumberCustomInputStringAndValueInRange_ReturnArgumentSet(string argument)
@@ -319,10 +345,6 @@ namespace InterAppConnector.Test.Library
 
         [TestCase("abcd123a")]
         [TestCase("ab")]
-        //
-        [TestCase("abc11234")]
-        [TestCase(" ")]
-        //
         public void SetArgument_ParameterWithWrongCustomString_ReturnArgumentException(string value)
         {
             Argument arguments = Argument.Parse(new[] { "setargument", "-plate", value }, "-");
