@@ -79,6 +79,9 @@ namespace InterAppConnector.Test.Library.DataModels
         [CustomInputString("ddMMyyyy")]
         public DateTime BirthDate { get; set; }
 
+        [ValueValidator(typeof(AgeValidatorWithCustomErrorMessageValidator))]
+        public uint ValidatedValue { get; set; }
+
         /*
          * To check. There may be a bug here 
          * [ValueValidator(typeof(CustomStringClassvalidator))]
