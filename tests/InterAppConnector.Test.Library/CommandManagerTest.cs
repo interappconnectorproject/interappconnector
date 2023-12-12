@@ -189,6 +189,22 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        public void SetArgument_WithCustomMessageValidatorError_ReturnArgumentSet()
+        {
+            Argument arguments = Argument.Parse(new[] { "setargument", "-validatedvalue", "120" }, "-");
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<SetArgumentCommand, SetArgumentMethodDataModel>();
+
+            Action wrongAction = () =>
+            {
+                manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
+            };
+
+            Assert.That(wrongAction, Throws.ArgumentException
+                .And.Message.Contain("The age must be between 0 and 100. For instance, a valid value is 25"));
+        }
+
+        [Test]
         public void SetArgument_WithValidatorNumberAndValueInRange_ReturnArgumentSet()
         {
             Argument arguments = Argument.Parse(new[] { "setargument", "-age", "34" }, "-");
@@ -224,8 +240,10 @@ namespace InterAppConnector.Test.Library
                 manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
             };
 
-            Assert.That(wrongAction, Throws.ArgumentException);
+            Assert.That(wrongAction, Throws.ArgumentException
+                .And.Message.Contains("The value provided to argument birthdate is not valid according to the validation procedure"));
         }
+
         [TestCase("validatedguid")]
         [TestCase("validateotherguid")]
         public void SetArgument_WithValidatorNumberCustomInputStringAndValueInRange_ReturnArgumentSet(string argument)

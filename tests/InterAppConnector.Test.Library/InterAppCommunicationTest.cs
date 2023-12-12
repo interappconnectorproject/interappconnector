@@ -191,6 +191,46 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        public void ExecuteAsBatch_WithMissingValidatedOptionalValueTypeArguments_ReturnNoErrors()
+        {
+            CommandManager command = new CommandManager();
+            command.AddCommand<ValidatedValueTypeCommand, ValidatedValueTypeDataModel>();
+            dynamic dynamic = new ExpandoObject();
+            dynamic.Age = 28;
+            int returnedValue = 0;
+
+            Action connectorAction = () =>
+            {
+                InterAppCommunication connector = new InterAppCommunication(command);
+                CommandResult<int> commandExecution = connector.ExecuteAsBatch<int>("validatedvaluetype", dynamic);
+                returnedValue = commandExecution.Message;
+            };
+
+            Assert.That(connectorAction, Throws.Nothing);
+            Assert.That(returnedValue, Is.EqualTo(28));
+        }
+
+        [Test]
+        public void ExecuteAsBatch_WithWrongOptionalValueTypeArguments_ReturnArgumetnExceptionError()
+        {
+            CommandManager command = new CommandManager();
+            command.AddCommand<ValidatedValueTypeCommand, ValidatedValueTypeDataModel>();
+            dynamic dynamic = new ExpandoObject();
+            dynamic.Age = 28;
+            dynamic.OptionalDate = "12081800";
+            int returnedValue = 0;
+
+            Action connectorAction = () =>
+            {
+                InterAppCommunication connector = new InterAppCommunication(command);
+                CommandResult<int> commandExecution = connector.ExecuteAsBatch<int>("validatedvaluetype", dynamic);
+                returnedValue = commandExecution.Message;
+            };
+
+            Assert.That(connectorAction, Throws.ArgumentException);
+        }
+
+        [Test]
         public void ExecuteAsBatch_WithAllValueTypeArgumentsSet_ReturnValue()
         {
             CommandManager command = new CommandManager();
@@ -285,6 +325,40 @@ namespace InterAppConnector.Test.Library
             CommandManager command = new CommandManager();
             command.AddCommand<ValueTypeCommand, ValueTypeDataModel>();
             string[] arguments = "valuetype -mandatoryvalue 5".Split(" ");
+
+            Action connectorAction = () =>
+            {
+                InterAppCommunication connector = new InterAppCommunication(command);
+                connector.ExecuteAsInteractiveCLI(arguments);
+            };
+
+            Assert.That(connectorAction, Throws.Nothing);
+            Assert.That(Environment.ExitCode, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void ExecuteAsInteractiveCLI_WithMissingOptionalValueTypeArguments_ReturnError()
+        {
+            CommandManager command = new CommandManager();
+            command.AddCommand<ValueTypeCommand, ValueTypeDataModel>();
+            string[] arguments = "validatedvaluetype -age 30 -OptionalDate 12051800".Split(" ");
+
+            Action connectorAction = () =>
+            {
+                InterAppCommunication connector = new InterAppCommunication(command);
+                connector.ExecuteAsInteractiveCLI(arguments);
+            };
+
+            Assert.That(connectorAction, Throws.Nothing);
+            Assert.That(Environment.ExitCode, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void ExecuteAsInteractiveCLI_WithMissingValidatedOptionalValueTypeArguments_ReturnValue()
+        {
+            CommandManager command = new CommandManager();
+            command.AddCommand<ValidatedValueTypeCommand, ValidatedValueTypeDataModel>();
+            string[] arguments = "validatedvaluetype -age 30".Split(" ");
 
             Action connectorAction = () =>
             {

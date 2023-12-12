@@ -225,7 +225,21 @@ namespace InterAppConnector
                                                                   where methood.Name == "ValidateValue"
                                                                   select methood).First();
 
-                                if (!((bool)validateInputMethod.Invoke(constructor, new[] { _arguments[selectedCommand].Arguments[findArgument.Name].Value })!))
+                                bool customValidationErrorMessageMissing = false;
+
+                                try
+                                {
+                                    if (!((bool)validateInputMethod.Invoke(constructor, new[] { _arguments[selectedCommand].Arguments[findArgument.Name].Value })!))
+                                    {
+                                        customValidationErrorMessageMissing = true;
+                                    }
+                                }
+                                catch (Exception exc)
+                                {
+                                    throw new ArgumentException("The value provided to argument " + item.Name + " is not acceptable. Reason: " + exc.GetBaseException().Message, item.Name, exc.InnerException);
+                                }
+
+                                if (customValidationErrorMessageMissing)
                                 {
                                     throw new ArgumentException("The value provided to argument " + item.Name + " is not valid according to the validation procedure");
                                 }
