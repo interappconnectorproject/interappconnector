@@ -1,6 +1,10 @@
 ﻿using InterAppConnector.Attributes;
 using InterAppConnector.DataModels;
+using InterAppConnector.Enumerations;
+using InterAppConnector.Interfaces;
+using System;
 using System.Collections;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 
@@ -93,15 +97,18 @@ namespace InterAppConnector
 
         internal static string DescribeAction(string action, string actionDescription, List<ParameterDescriptor> arguments)
         {
+            StringBuilder exampleParameters = new StringBuilder();
             StringBuilder description = new StringBuilder();
             description.AppendLine("- " + action);
             description.AppendLine("  " + actionDescription);
+            exampleParameters.Append(" " + action);
             foreach (ParameterDescriptor descriptor in arguments)
             {
                 description.Append("\t-" + descriptor.Name);
                 if (descriptor.IsMandatory)
                 {
                     description.Append(" (required) : ");
+                    exampleParameters.Append(" -" + descriptor.Name + " ");
                 }
                 else
                 {
@@ -124,6 +131,7 @@ namespace InterAppConnector
                     description.AppendLine("\tAccepted values for this parameter: ");
                     EnumHelper helper = new EnumHelper();
                     helper.LoadEnumerationValues(descriptor.ParameterType);
+                    string exampleEnumValue = "";
                     foreach (ParameterDescriptor possibleValue in helper._parameters.Values)
                     {
                         description.Append("\t\t" + possibleValue.Name + " ");
@@ -148,6 +156,55 @@ namespace InterAppConnector
                                 description.AppendLine("\t\t" + possibleValue.Aliases[i] + " : Same as " + possibleValue.Name);
                             }
                         }
+
+                        if (string.IsNullOrEmpty(exampleEnumValue))
+                        {
+                            exampleEnumValue = possibleValue.Name;
+                        }
+                    }
+
+                    if (descriptor.IsMandatory)
+                    {
+                        exampleParameters.Append("\"" + exampleEnumValue + "\"");
+                    }
+                }
+                else
+                {
+                    /**
+                     * For other types, we have three cases:
+                     * - no validators are defined
+                     * - no examples are defined
+                     * - it is defined a validator and an example
+                     * A validator has a precedence to everything. If a validator is not defined, the library checks
+                     * if there is an example defined in [ExampleValue] attribute. If there is not this attribute
+                     * write a generic string. Remember that booleans haven't any values
+                     */
+                    if (descriptor.IsMandatory && descriptor.ParameterType != typeof(bool))
+                    {
+                        if (descriptor.Attributes.Exists(item => item.GetType() == typeof(ValueValidatorAttribute)))
+                        {
+                            ValueValidatorAttribute attribute = (ValueValidatorAttribute) descriptor.Attributes.Find(item => item.GetType() == typeof(ValueValidatorAttribute))!;
+                            IValueValidator? validator = Activator.CreateInstance(attribute.ValueValidatorType) as IValueValidator;
+                            if (validator != null)
+                            {
+                                exampleParameters.Append('\"');
+                                exampleParameters.Append(validator.GetSampleValidValue());
+                                exampleParameters.Append('\"');
+                            }
+                            else
+                            {
+                                exampleParameters.Append("\"##INVALIDVALIDATOR##\"");
+                            }
+                        }
+                        else if (descriptor.Attributes.Exists(item => item.GetType() == typeof(ExampleValueAttribute)))
+                        {
+                            ExampleValueAttribute attribute = (ExampleValueAttribute)descriptor.Attributes.Find(item => item.GetType() == typeof(ExampleValueAttribute))!;
+                            exampleParameters.Append("\"" + attribute.ExampleValue + "\"");
+                        }
+                        else
+                        {
+                            exampleParameters.Append("\"<value>\"");
+                        }
                     }
                 }
 
@@ -165,6 +222,14 @@ namespace InterAppConnector
                 }
 
             }
+
+            if (InterAppCommunication.CommandExecutionType == CommandExecutionType.Interactive)
+            {
+                description.AppendLine();
+                description.AppendLine("  Command example:");
+                description.AppendLine("  " + Path.GetFileName(Environment.ProcessPath) +  exampleParameters.ToString());
+            }
+
             return description.ToString();
         }
 

@@ -1,7 +1,6 @@
 ﻿using InterAppConnector.Enumerations;
 using InterAppConnector.Exceptions;
 using InterAppConnector.Test.Library.Enumerations;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace InterAppConnector.Test.Library

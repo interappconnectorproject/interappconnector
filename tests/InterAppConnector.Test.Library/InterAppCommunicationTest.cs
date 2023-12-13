@@ -8,6 +8,7 @@ using InterAppConnector.Test.Library.Enumerations;
 using InterAppConnector.Exceptions;
 using InterAppConnector.Test.SampleCommandsLibrary.DataModels;
 using InterAppConnector.Test.SampleCommandsLibrary;
+using System.Diagnostics;
 
 namespace InterAppConnector.Test.Library
 {
@@ -337,7 +338,24 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
-        public void ExecuteAsInteractiveCLI_WithMissingOptionalValueTypeArguments_ReturnError()
+        public void ExecuteAsInteractiveCLI_ValidatedMissingArgument_ReturnError()
+        {
+            CommandManager command = new CommandManager();
+            command.AddCommand<ValidatedValueTypeCommand, ValidatedValueTypeDataModel>();
+            string[] arguments = "validatedvaluetype".Split(" ");
+
+            Action connectorAction = () =>
+            {
+                InterAppCommunication connector = new InterAppCommunication(command);
+                connector.ExecuteAsInteractiveCLI(arguments);
+            };
+
+            Assert.That(connectorAction, Throws.Nothing);
+            Assert.That(Environment.ExitCode, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void ExecuteAsInteractiveCLI_WithWrongOptionalValueTypeArguments_ReturnError()
         {
             CommandManager command = new CommandManager();
             command.AddCommand<ValueTypeCommand, ValueTypeDataModel>();
@@ -385,6 +403,23 @@ namespace InterAppConnector.Test.Library
 
             Assert.That(connectorAction, Throws.Nothing);
             Assert.That(Environment.ExitCode, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void ExecuteAsInteractiveCLI_WithWrongValidator_ReturnNoErrors()
+        {
+            CommandManager command = new CommandManager();
+            command.AddCommand<WrongValidatorCommand, WrongValidatorDataModel>();
+            string[] arguments = "wrongvalidator".Split(" ");
+
+            Action connectorAction = () =>
+            {
+                InterAppCommunication connector = new InterAppCommunication(command);
+                connector.ExecuteAsInteractiveCLI(arguments);
+            };
+
+            Assert.That(connectorAction, Throws.Nothing);
+            Assert.That(Environment.ExitCode, Is.EqualTo(3));
         }
 
         [Test]
