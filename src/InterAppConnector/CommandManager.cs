@@ -219,22 +219,17 @@ namespace InterAppConnector
 
                             if (validator.ValueValidatorType.GetInterface(typeof(IValueValidator).Name) != null)
                             {
-                                object constructor = validator.ValueValidatorType.GetConstructor(Array.Empty<Type>())!.Invoke(Array.Empty<object>());
-
-                                MethodInfo validateInputMethod = (from methood in constructor.GetType().GetMethods()
-                                                                  where methood.Name == "ValidateValue"
-                                                                  select methood).First();
-
+                                IValueValidator valueValidator = (IValueValidator) Activator.CreateInstance(validator.ValueValidatorType)!;
                                 bool customValidationErrorMessageMissing = false;
 
                                 try
                                 {
-                                    if (!((bool)validateInputMethod.Invoke(constructor, new[] { _arguments[selectedCommand].Arguments[findArgument.Name].Value })!))
+                                    if (!valueValidator.ValidateValue(_arguments[selectedCommand].Arguments[findArgument.Name].Value))
                                     {
                                         customValidationErrorMessageMissing = true;
                                     }
                                 }
-                                catch (Exception exc)
+                                catch(Exception exc) 
                                 {
                                     throw new ArgumentException("The value provided to argument " + item.Name + " is not acceptable. Reason: " + exc.GetBaseException().Message, item.Name, exc.InnerException);
                                 }
@@ -400,7 +395,7 @@ namespace InterAppConnector
                             attributes.Remove(parameterProperty.GetCustomAttribute<DescriptionAttribute>()!);
                         }
 
-                        descriptor.Value = parameterProperty.GetValue(parameterObject);
+                        descriptor.Value = parameterProperty.GetValue(parameterObject)!;
                         descriptor.Attributes = attributes;
 
                         if (includePropertyNameInAliases)
@@ -409,6 +404,12 @@ namespace InterAppConnector
                             {
                                 descriptor.Aliases.Add(parameterProperty.Name.ToLower().Trim());
                             }
+                        }
+
+                        if (parameterProperty.GetCustomAttribute<ExampleValueAttribute>() != null 
+                            && string.IsNullOrEmpty(parameterProperty.GetCustomAttribute<ExampleValueAttribute>()!.ExampleValue))
+                        {
+                            throw new ArgumentException("The example value cannot be null or empty", parameterProperty.Name);
                         }
 
                         argument.Arguments.Add(descriptor.Name, descriptor);

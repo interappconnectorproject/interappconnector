@@ -6,7 +6,7 @@ namespace InterAppConnector.Test.SampleCommandsLibrary.DataModels
     public class BaseParameter
     {
         [Description("Define the file path")]
-        public string FilePath { get; set; }
+        public string FilePath { get; set; } = string.Empty;
 
         [Description("Define the output format")]
         public CommandOutputFormat? OutputFormat { get; set; }

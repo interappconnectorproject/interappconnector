@@ -66,6 +66,19 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        public void AddCommand_AddCommandWithWrongExample_ReturnArgumentException()
+        {
+            CommandManager manager = new CommandManager();
+
+            Action commands = () =>
+            {
+                manager.AddCommand<WrongArgumentExampleCommand, WrongExampleDataModel>();
+            };
+
+            Assert.That(commands, Throws.InstanceOf(typeof(ArgumentException)));
+        }
+
+        [Test]
         public void AddCommand_AddCommandWithEmptyStringAlias_ReturnArgumentExceptionEmptyStringAliasNotAllowed()
         {
             CommandManager manager = new CommandManager();
@@ -363,6 +376,10 @@ namespace InterAppConnector.Test.Library
 
         [TestCase("abcd123a")]
         [TestCase("ab")]
+        //
+        [TestCase("")]
+        [TestCase("abcdd123")]
+        //
         public void SetArgument_ParameterWithWrongCustomString_ReturnArgumentException(string value)
         {
             Argument arguments = Argument.Parse(new[] { "setargument", "-plate", value }, "-");
