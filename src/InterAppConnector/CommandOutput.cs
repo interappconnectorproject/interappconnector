@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 using InterAppConnector.DataModels;
 using InterAppConnector.Enumerations;
 using InterAppConnector.Exceptions;

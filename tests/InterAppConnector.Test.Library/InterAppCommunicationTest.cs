@@ -37,6 +37,29 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        public void ExecuteAsBatch_ExecuteBatchTestCommandWithBooleanSet_ReturnSuccessfulMessage()
+        {
+            CommandManager manager = new CommandManager();
+            manager.AddCommand<BooleanCommand, DataModelWithBoolean>(true);
+            DataModelWithBoolean batchCommandDataModel = new DataModelWithBoolean
+            {
+                MandatorySwitch = true,
+                Number = 50
+            };
+            dynamic parameters = new ExpandoObject();
+            parameters.MandatorySwitch = batchCommandDataModel.MandatorySwitch;
+            parameters.Number = 50;
+
+            InterAppCommunication connector = new InterAppCommunication(manager);
+            CommandResult<DataModelWithBoolean> result = connector.ExecuteAsBatch<DataModelWithBoolean>("booleancommand", parameters);
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.MessageStatus, Is.EqualTo(CommandExecutionMessageType.Success));
+            Assert.That(result.Message.MandatorySwitch, Is.True);
+            Assert.That(result.Message.Number, Is.EqualTo(50));
+        }
+
+        [Test]
         public void ExecuteAsBatch_ExecuteBatchTestCommandWithWarningMessage_ReturnWarningMessage()
         {
             CommandManager manager = new CommandManager();
@@ -318,6 +341,23 @@ namespace InterAppConnector.Test.Library
 
             Assert.That(connectorAction, Throws.Nothing);
             Assert.That(Environment.ExitCode, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void ExecuteAsInteractiveCLI_WithBooleanValue_ReturnNoErrorMessage()
+        {
+            CommandManager command = new CommandManager();
+            command.AddCommand<BooleanCommand, DataModelWithBoolean>();
+            string[] arguments = "booleancommand -mandatoryswitch -number 50".Split(" ");
+
+            Action connectorAction = () =>
+            {
+                InterAppCommunication connector = new InterAppCommunication(command);
+                connector.ExecuteAsInteractiveCLI(arguments);
+            };
+
+            Assert.That(connectorAction, Throws.Nothing);
+            Assert.That(Environment.ExitCode, Is.EqualTo(0));
         }
 
         [Test]

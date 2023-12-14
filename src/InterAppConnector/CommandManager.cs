@@ -204,8 +204,17 @@ namespace InterAppConnector
                                 }
                                 else
                                 {
-                                    throw new ArgumentException();
-                                }
+                                    if (parameterType == typeof(bool))
+                                    {
+                                        _arguments[selectedCommand].Arguments[findArgument.Name].Value = Convert.ChangeType(item.Value, parameterType);
+                                        _parameterObject[selectedCommand].GetType().GetProperty(findArgument.OriginalPropertyName)!.SetValue(_parameterObject[selectedCommand], Convert.ChangeType(item.Value, parameterType));
+                                        _arguments[selectedCommand].Arguments[findArgument.Name].IsSetByUser = true;
+                                    }
+                                    else
+                                    {
+                                        throw new ArgumentException();
+                                    }
+                                }                               
                             }
                             catch (Exception exc)
                             {
