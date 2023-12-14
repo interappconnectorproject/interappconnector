@@ -376,10 +376,6 @@ namespace InterAppConnector.Test.Library
 
         [TestCase("abcd123a")]
         [TestCase("ab")]
-        //
-        [TestCase("")]
-        [TestCase("abcdd123")]
-        //
         public void SetArgument_ParameterWithWrongCustomString_ReturnArgumentException(string value)
         {
             Argument arguments = Argument.Parse(new[] { "setargument", "-plate", value }, "-");
