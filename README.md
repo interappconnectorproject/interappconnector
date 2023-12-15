@@ -10,6 +10,8 @@
 
 InterAppConnector is a library that helps to create modules that can be easily integrated in different applications and project types by using a common message format.
 
+It is very useful for software or applications that are developed using the modular programming and in particular the module pattern.
+
 You can create one or more modules (called commands) and call them in the same mode without worrying about the project type
 
 # Features
@@ -93,4 +95,4 @@ For advanced scenarios and in order to learn how to use the library efficiently,
 
 ## General documentation
 
-The general documentation is available in the [Github Wiki](https://github.com/interappconnectorproject/interappconnector/wiki) section.
+The general documentation is available in the [GitHub Wiki](https://github.com/interappconnectorproject/interappconnector/wiki) section.
