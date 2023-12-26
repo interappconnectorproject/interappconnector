@@ -1,9 +1,7 @@
-﻿using InterAppConnector.Attributes;
-using InterAppConnector.DataModels;
+﻿using InterAppConnector.DataModels;
 using InterAppConnector.Exceptions;
-using System.ComponentModel;
+using InterAppConnector.Interfaces;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace InterAppConnector
 {
@@ -13,62 +11,56 @@ namespace InterAppConnector
 
         internal void LoadEnumerationValues<EnumType>() where EnumType : Enum
         {
-            foreach (FieldInfo item in typeof(EnumType).GetFields())
+            Type argumentBaseType = typeof(EnumType);
+            foreach (FieldInfo item in argumentBaseType.GetFields())
             {
                 // take only the value defined by the user
                 if (!item.IsSpecialName)
                 {
-                    if (item.GetCustomAttribute<ExcludeItemFromCommandAttribute>() == null)
+                    List<Attribute> distinctAttributes = RuleManager.GetDistinctAttributes(item);
+                    ParameterDescriptor descriptor = new ParameterDescriptor();
+                    List<IArgumentDefinitionRule> rulesToExecute = RuleManager.GetAssemblyRules<IArgumentDefinitionRule>(typeof(CommandManager));
+
+                    foreach (Attribute attribute in distinctAttributes)
                     {
-                        ParameterDescriptor descriptor = new ParameterDescriptor();
-                        descriptor.OriginalPropertyName = item.Name;
-
-                        if (item.GetCustomAttributes<AliasAttribute>().Count() > 0)
-                        {
-                            foreach (AliasAttribute alias in item.GetCustomAttributes<AliasAttribute>())
-                            {
-                                if (!string.IsNullOrWhiteSpace(alias.Name))
-                                {
-                                    double number;
-                                    if (!double.TryParse(alias.Name.ToLower().Trim(), out number))
-                                    {
-                                        if (Regex.IsMatch(alias.Name.ToLower().Trim(), @"^[A-Za-z0-9-]+$", RegexOptions.IgnoreCase, TimeSpan.FromSeconds(1)))
-                                        {
-                                            descriptor.Aliases.Add(alias.Name.ToLower().Trim());
-                                        }
-                                        else
-                                        {
-                                            throw new ArgumentException("Invalid string found in " + alias.Name + ". Alias must contain only alphanumeric characters and hyphens (-). Null values, empty string and numbers are also not allowed");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        throw new ArgumentException("Invalid alias found in " + item.Name + ". The alias cannot be null, an empty string or a number", item.Name);
-                                    }
-                                }
-                                else
-                                {
-                                    throw new ArgumentException("Invalid alias found in " + item.Name + ". The alias cannot be null, an empty string or a number", item.Name);
-                                }
-                            }
-
-                            descriptor.Name = descriptor.Aliases[0].ToLower().Trim();
-                            //descriptor.Aliases.RemoveAt(0);
-                        }
-                        else
-                        {
-                            descriptor.Name = item.Name.ToLower().Trim();
-                        }
-
-                        if (item.GetCustomAttribute<DescriptionAttribute>() != null)
-                        {
-                            descriptor.Description = item.GetCustomAttribute<DescriptionAttribute>().Description;
-                        }
-
-                        descriptor.Value = (int)item.GetValue(typeof(EnumType));
-
-                        _parameters.Add(item.Name.ToLower().Trim(), descriptor);
+                        rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentDefinitionRule>(item.DeclaringType!));
                     }
+
+                    foreach (var rule in from IArgumentDefinitionRule rule in rulesToExecute
+                                         where rule.IsRuleEnabledInArgumentDefinition(item)
+                                         select rule)
+                    {
+                        try
+                        {
+                            Type argumentType = rule.GetType().GetInterface(typeof(IArgumentDefinitionRule<>).FullName!)!.GetGenericArguments()[0];
+
+                            Attribute? attributeExists = (from attributeItem in distinctAttributes
+                                                          where attributeItem.GetType() == argumentType
+                                                          select attributeItem).FirstOrDefault();
+
+                            if (attributeExists != default(Attribute))
+                            {
+                                descriptor = rule.DefineArgumentIfTypeExists(argumentBaseType, item, descriptor);
+                            }
+                            else
+                            {
+                                descriptor = rule.DefineArgumentIfTypeDoesNotExist(argumentBaseType, item, descriptor);
+                            }
+                        }
+                        catch
+                        {
+                            /*
+                             * A default rule does not have an interface with an argument type,
+                             * so you have to consider also this case
+                             */
+                            descriptor = rule.DefineArgumentIfTypeExists(argumentBaseType, item, descriptor);
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(descriptor.Name))
+                    {
+                        _parameters.Add(item.Name.ToLower().Trim(), descriptor);
+                    }                  
                 }
             }
         }
@@ -84,7 +76,9 @@ namespace InterAppConnector
                      * Moreover, as the LoadEnumerationValues is internal to this class and it is not public,
                      * it is necessary the BindingFlags attributes in order to invoke the method
                      */
-                    typeof(EnumHelper).GetMethod("LoadEnumerationValues", BindingFlags.Instance | BindingFlags.NonPublic, Type.EmptyTypes).MakeGenericMethod(enumType).Invoke(this, null);
+                    #pragma warning disable S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
+                    typeof(EnumHelper).GetMethod("LoadEnumerationValues", BindingFlags.Instance | BindingFlags.NonPublic, Type.EmptyTypes)!.MakeGenericMethod(enumType).Invoke(this, null);
+                    #pragma warning restore S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
                 }
                 catch (Exception exc)
                 {
@@ -93,33 +87,7 @@ namespace InterAppConnector
             }
             else
             {
-                throw new TypeMismatchException(typeof(Enum).FullName, enumType.GetType().FullName, null, enumType.GetType().FullName + " is not an enumeration");
-            }
-        }
-
-        /// <summary>
-        /// Get the enumeration field associated with the value
-        /// </summary>
-        /// <param name="enumType">The enum type</param>
-        /// <param name="value">The value to search in the enumeration</param>
-        /// <returns>The enumeration value</returns>
-        /// <exception cref="TypeMismatchException">Exception raised when the type chosen is not an enumeration</exception>
-        public static object GetEnumerationFieldByValue(Type enumType, string value)
-        {
-            if (enumType.IsEnum)
-            {
-                try
-                {
-                    return typeof(EnumHelper).GetMethod("GetEnumerationFieldByValue", 1, new[] { typeof(string) }).MakeGenericMethod(enumType).Invoke(null, new object[] { value });
-                }
-                catch (Exception exc)
-                {
-                    throw exc.InnerException;
-                }
-            }
-            else
-            {
-                throw new TypeMismatchException(typeof(Enum).FullName, enumType.GetType().FullName, null, enumType.GetType().FullName + " is not an enumeration");
+                throw new TypeMismatchException(typeof(Enum).FullName!, enumType.FullName!, null!, enumType.FullName + " is not an enumeration");
             }
         }
 
@@ -153,6 +121,32 @@ namespace InterAppConnector
         }
 
         /// <summary>
+        /// Get the enumeration field associated with the value
+        /// </summary>
+        /// <param name="enumType">The enum type</param>
+        /// <param name="value">The value to search in the enumeration</param>
+        /// <returns>The enumeration value</returns>
+        /// <exception cref="TypeMismatchException">Exception raised when the type chosen is not an enumeration</exception>
+        public static object GetEnumerationFieldByValue(Type enumType, string value)
+        {
+            if (enumType.IsEnum)
+            {
+                try
+                {
+                    return typeof(EnumHelper).GetMethod("GetEnumerationFieldByValue", 1, new[] { typeof(string) })!.MakeGenericMethod(enumType).Invoke(null, new object[] { value })!;
+                }
+                catch (Exception exc)
+                {
+                    throw exc.InnerException!;
+                }
+            }
+            else
+            {
+                throw new TypeMismatchException(typeof(Enum).FullName!, enumType.FullName!, null!, enumType.FullName + " is not an enumeration");
+            }
+        }
+
+        /// <summary>
         /// Get the enumeration value by searching for his value and alias
         /// </summary>
         /// <typeparam name="EnumType">The enun type</typeparam>
@@ -165,7 +159,6 @@ namespace InterAppConnector
             helper.LoadEnumerationValues<EnumType>();
 
             int parsedNumber;
-            object enumType;
             string stringToEvaluate = "";
 
             foreach (ParameterDescriptor descriptor in helper._parameters.Values)
@@ -174,7 +167,7 @@ namespace InterAppConnector
                 {
                     if ((int) descriptor.Value == parsedNumber)
                     {
-                        stringToEvaluate += parsedNumber;
+                        stringToEvaluate = parsedNumber.ToString();
                     }
                 }
                 else
@@ -198,14 +191,6 @@ namespace InterAppConnector
 
             if (!string.IsNullOrEmpty(stringToEvaluate))
             {
-                /*if (Enum.TryParse(typeof(EnumType), stringToEvaluate, true, out enumType))
-                {
-                    if (Enum.IsDefined(typeof(EnumType), enumType))
-                    {
-                        return (EnumType)enumType;
-                    }
-                }*/
-
                 /**
                  * The checks and the validations done might be enough to ensure that
                  * the value belongs to the enumeration type, so the Parse method should not

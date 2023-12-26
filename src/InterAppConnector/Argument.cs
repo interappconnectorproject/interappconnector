@@ -2,6 +2,7 @@
 using System.Reflection;
 using InterAppConnector.Attributes;
 using InterAppConnector.DataModels;
+using System.Linq;
 
 namespace InterAppConnector
 {
@@ -98,31 +99,6 @@ namespace InterAppConnector
         }
 
         /// <summary>
-        /// Get the first entry of the custom attribute with the type in <typeparamref name="ParameterType"/>, if exists,
-        /// otherwise return <see langword="null"/>
-        /// </summary>
-        /// <typeparam name="ParameterType">The type of the attribute to find</typeparam>
-        /// <param name="parameterName">The name of the parameter</param>
-        /// <returns>The first entry of the attribute with type <typeparamref name="ParameterType"/>, otherwise <see langword="null"/></returns>
-        public ParameterType GetCustomAttribute<ParameterType>(string parameterName) where ParameterType : Attribute
-        {
-            ParameterType parameter = null;
-
-            if (IsParameterDefined(parameterName))
-            {
-                foreach (object item in _parameters[parameterName].Attributes)
-                {
-                    if (item.GetType() == typeof(ParameterType) && parameter == null)
-                    {
-                        parameter = (ParameterType)item;
-                    }
-                }
-            }
-
-            return parameter;
-        }
-
-        /// <summary>
         /// Get the first alias assigned to the property or the property name if no aliases were found.<br/>
         /// It returns <see langword="null"/> if the property does not belong to the argument defined in <typeparamref name="ArgumentType"/><br/>
         /// This method is useful in a scenario where code obfuscation is necessary
@@ -136,7 +112,7 @@ namespace InterAppConnector
             PropertyInfo? propertyFound = typeof(ArgumentType).GetProperty(propertyName);
             if (propertyFound != null)
             {
-                if (propertyFound.GetCustomAttributes<AliasAttribute>().Count() > 0)
+                if (propertyFound.GetCustomAttributes<AliasAttribute>().Any())
                 {
                     argumentName = propertyFound.GetCustomAttributes<AliasAttribute>().First().Name;
                 }
@@ -180,7 +156,7 @@ namespace InterAppConnector
             {
                 string argument = argumentList.Dequeue();
 
-                /**
+                /*
                  * An argument must not be a number.
                  * However, there may be cases where you want to pass a negative number in an argument
                  * In this case, the string is considered a value of the latest argument declared at that time
@@ -189,7 +165,7 @@ namespace InterAppConnector
                 if (IsArgumentWithPrefix(argument, argumentPrefixes))
                 {
                     double number;
-                    
+
                     if (double.TryParse(argument, out number))
                     {
                         if (descriptor != null && descriptor.Value == null)
@@ -257,17 +233,17 @@ namespace InterAppConnector
             Argument result = new Argument();
             List<string> argumentList = new List<string>();
             ExpandoObject args = arguments;
-            foreach (KeyValuePair<string, object?> item in args)
+            foreach (var item in from KeyValuePair<string, object?> item in args
+                                 where item.Value is not null
+                                 select item)
             {
-                if (item.Value is not null)
+                argumentList.Add(argumentPrefix + item.Key);
+                if (item.Value is not bool)
                 {
-                    argumentList.Add(argumentPrefix + item.Key);
-                    if (item.Value is not bool)
-                    {
-                        argumentList.Add(item.Value.ToString());
-                    }
+                    argumentList.Add(item.Value.ToString());
                 }
             }
+
             return result.ParseInternal(argumentList.ToArray(), argumentPrefix);
         }
 
@@ -275,13 +251,13 @@ namespace InterAppConnector
         {
             bool isArgumentWithPrefix = false;
             string[] argumentPrefixList = argumentPrefixes.Split(",");
-            foreach (string argumentPrefix in argumentPrefixList)
+            foreach (var _ in from string argumentPrefix in argumentPrefixList
+                              where argument.ToLower().StartsWith(argumentPrefix.ToLower())
+                              select new { })
             {
-                if (argument.ToLower().StartsWith(argumentPrefix.ToLower()))
-                {
-                    isArgumentWithPrefix = true;
-                }
+                isArgumentWithPrefix = true;
             }
+
             return isArgumentWithPrefix;
         }
     }
