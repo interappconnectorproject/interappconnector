@@ -114,17 +114,17 @@ namespace InterAppConnector.Test.Library
                 .AddCommand<WriteTextCommand, FileManagerParameter>()
                 .AddCommand<ReadFileCommand, BaseParameter>();
 
-            Assert.That(command._commands.Count, Is.EqualTo(4));
+            Assert.That(command._commands, Has.Count.EqualTo(4));
             Assert.That(command._commands[typeof(AppendTextCommand).FullName].GetType(), Is.EqualTo(typeof(AppendTextCommand)));
             Assert.That(command._commands[typeof(CreateFileCommand).FullName].GetType(), Is.EqualTo(typeof(CreateFileCommand)));
             Assert.That(command._commands[typeof(WriteTextCommand).FullName].GetType(), Is.EqualTo(typeof(WriteTextCommand)));
             Assert.That(command._commands[typeof(ReadFileCommand).FullName].GetType(), Is.EqualTo(typeof(ReadFileCommand)));
-            Assert.That(command._arguments.Count, Is.EqualTo(4));
-            Assert.That(command._arguments[typeof(AppendTextCommand).FullName].Arguments.Count, Is.EqualTo(3));
-            Assert.That(command._arguments[typeof(CreateFileCommand).FullName].Arguments.Count, Is.EqualTo(3));
-            Assert.That(command._arguments[typeof(WriteTextCommand).FullName].Arguments.Count, Is.EqualTo(3));
-            Assert.That(command._arguments[typeof(ReadFileCommand).FullName].Arguments.Count, Is.EqualTo(2));
-            Assert.That(command._parameterObject.Count, Is.EqualTo(4));
+            Assert.That(command._arguments, Has.Count.EqualTo(4));
+            Assert.That(command._arguments[typeof(AppendTextCommand).FullName].Arguments, Has.Count.EqualTo(3));
+            Assert.That(command._arguments[typeof(CreateFileCommand).FullName].Arguments, Has.Count.EqualTo(3));
+            Assert.That(command._arguments[typeof(WriteTextCommand).FullName].Arguments, Has.Count.EqualTo(3));
+            Assert.That(command._arguments[typeof(ReadFileCommand).FullName].Arguments, Has.Count.EqualTo(2));
+            Assert.That(command._parameterObject, Has.Count.EqualTo(4));
             Assert.That(command._parameterObject[typeof(AppendTextCommand).FullName].GetType(), Is.EqualTo(typeof(FileManagerParameter)));
             Assert.That(command._parameterObject[typeof(CreateFileCommand).FullName].GetType(), Is.EqualTo(typeof(FileManagerParameter)));
             Assert.That(command._parameterObject[typeof(WriteTextCommand).FullName].GetType(), Is.EqualTo(typeof(FileManagerParameter)));
@@ -138,7 +138,7 @@ namespace InterAppConnector.Test.Library
 
             command.AddCommand<MultipleArgumentTypeCommand, MultipleArgumentTypeDataModel>();
 
-            Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments.Count, Is.EqualTo(9));
+            Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments, Has.Count.EqualTo(9));
             Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["mandatorynumber"].IsMandatory, Is.EqualTo(true));
             Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["mandatoryfileinfo"].IsMandatory, Is.EqualTo(true));
             Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["mandatoryguid"].IsMandatory, Is.EqualTo(true));
@@ -152,7 +152,7 @@ namespace InterAppConnector.Test.Library
 
             command.AddCommand<MultipleArgumentTypeCommand, MultipleArgumentTypeDataModel>();
 
-            Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments.Count, Is.EqualTo(9));
+            Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments, Has.Count.EqualTo(9));
             Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["number"].IsMandatory, Is.EqualTo(false));
             Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["guid"].IsMandatory, Is.EqualTo(false));
             Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["switch"].IsMandatory, Is.EqualTo(false));
@@ -300,7 +300,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [TestCase("validatedcustomclass")]
-        //[TestCase("othervalidatedcustomclass")]
+        [TestCase("othervalidatedcustomclass")]
         public void SetArgument_WithAnotherValidatorCustomInputStringAndValueInRange_ReturnArgumentSet(string argument)
         {
             Argument arguments = Argument.Parse(new[] { "setargument", "-" + argument, "apple,pear" }, "-");
@@ -309,7 +309,7 @@ namespace InterAppConnector.Test.Library
 
             manager.SetArguments(new List<string>(new[] { "setargument" }), arguments.Arguments.Values.ToList());
 
-            Assert.That(((CustomStringFormatClass)manager._arguments[typeof(SetArgumentCommand).FullName].Arguments[argument].Value).List.Count, Is.EqualTo(2));
+            Assert.That(((CustomStringFormatClass)manager._arguments[typeof(SetArgumentCommand).FullName].Arguments[argument].Value).List, Has.Count.EqualTo(2));
         }
 
         [Test]
@@ -359,7 +359,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [TestCase("validatedcustomclass")]
-        //[TestCase("othervalidatedcustomclass")]
+        [TestCase("othervalidatedcustomclass")]
         public void SetArgument_WithAnotherValidatorCustomInputStringAndValueNotInRange_ReturnArgumentException(string argument)
         {
             Argument arguments = Argument.Parse(new[] { "setargument", "-" + argument, "apple,grapefruitpear" }, "-");
@@ -376,6 +376,9 @@ namespace InterAppConnector.Test.Library
 
         [TestCase("abcd123a")]
         [TestCase("ab")]
+        //
+        [TestCase("")]
+        //
         public void SetArgument_ParameterWithWrongCustomString_ReturnArgumentException(string value)
         {
             Argument arguments = Argument.Parse(new[] { "setargument", "-plate", value }, "-");
