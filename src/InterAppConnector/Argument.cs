@@ -252,7 +252,7 @@ namespace InterAppConnector
             bool isArgumentWithPrefix = false;
             string[] argumentPrefixList = argumentPrefixes.Split(",");
             foreach (var _ in from string argumentPrefix in argumentPrefixList
-                              where argument.ToLower().StartsWith(argumentPrefix.ToLower())
+                              where argument.StartsWith(argumentPrefix, StringComparison.OrdinalIgnoreCase)
                               select new { })
             {
                 isArgumentWithPrefix = true;

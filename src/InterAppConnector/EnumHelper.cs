@@ -30,7 +30,7 @@ namespace InterAppConnector
                                          where rule.IsRuleEnabledInArgumentDefinition(item)
                                          select rule)
                     {
-                        try
+                        if (RuleManager.IsSpecializedRule(rule))
                         {
                             Type argumentType = rule.GetType().GetInterface(typeof(IArgumentDefinitionRule<>).FullName!)!.GetGenericArguments()[0];
 
@@ -47,12 +47,8 @@ namespace InterAppConnector
                                 descriptor = rule.DefineArgumentIfTypeDoesNotExist(argumentBaseType, item, descriptor);
                             }
                         }
-                        catch
+                        else
                         {
-                            /*
-                             * A default rule does not have an interface with an argument type,
-                             * so you have to consider also this case
-                             */
                             descriptor = rule.DefineArgumentIfTypeExists(argumentBaseType, item, descriptor);
                         }
                     }
