@@ -19,7 +19,7 @@ namespace InterAppConnector
         /// </summary>
         public static uint MaximumObjectDepth { get; set; } = 64;
 
-        internal static string DescribeCommands(CommandManager commandManager, bool writeHeader = true, bool simulateConsoleException = false)
+        internal static string DescribeCommands(CommandManager CommandManager, bool writeHeader = true, bool simulateConsoleException = false)
         {
             StringBuilder description = new StringBuilder();
             int lineLength;
@@ -50,9 +50,9 @@ namespace InterAppConnector
             {
                 description.AppendLine(DrawLine(lineLength));
                 description.AppendLine();
-                description.Append(Assembly.GetEntryAssembly().GetName().Name);
+                description.Append(Assembly.GetEntryAssembly()!.GetName().Name);
                 description.Append(" ");
-                description.AppendLine(Assembly.GetEntryAssembly().GetName().Version.ToString());
+                description.AppendLine(Assembly.GetEntryAssembly()!.GetName().Version!.ToString());
                 description.AppendLine();
                 description.AppendLine(DrawLine(lineLength));
             }
@@ -60,19 +60,19 @@ namespace InterAppConnector
             description.AppendLine("Available actions:");
             description.AppendLine();
 
-            foreach (KeyValuePair<string, Argument> item in commandManager._arguments)
+            foreach (KeyValuePair<string, Argument> item in CommandManager._arguments)
             {
                 string action;
                 string actionDescription = "No description provided";
 
-                if (commandManager._commands[item.Key].GetType().GetCustomAttribute<CommandAttribute>() != null)
+                if (CommandManager._commands[item.Key].GetType().GetCustomAttribute<CommandAttribute>() != null)
                 {
-                    action = commandManager._commands[item.Key].GetType().GetCustomAttribute<CommandAttribute>().Name;
-                    actionDescription = commandManager._commands[item.Key].GetType().GetCustomAttribute<CommandAttribute>().Description;
+                    action = CommandManager._commands[item.Key].GetType().GetCustomAttribute<CommandAttribute>().Name;
+                    actionDescription = CommandManager._commands[item.Key].GetType().GetCustomAttribute<CommandAttribute>().Description;
                 }
                 else
                 {
-                    action = commandManager._commands[item.Key].GetType().Name.ToLower().Trim();
+                    action = CommandManager._commands[item.Key].GetType().Name.ToLower().Trim();
                 }
 
                 description.AppendLine(DescribeAction(action, actionDescription, item.Value.Arguments.Values.ToList()));
@@ -113,15 +113,7 @@ namespace InterAppConnector
                     description.Append(" (optional) : ");
                 }
 
-                if (!string.IsNullOrEmpty(descriptor.Description))
-                {
-                    description.AppendLine(descriptor.Description);
-                }
-                else
-                {
-                    description.AppendLine("No description provided");
-                }
-                
+                description.AppendLine(descriptor.Description);
 
                 // for enumerations, describe the numbers and values that a parameter may have
                 if (descriptor.ParameterType.IsEnum)
@@ -136,15 +128,7 @@ namespace InterAppConnector
                         description.Append("(");
                         description.Append(possibleValue.Value);
                         description.Append(") : ");
-                        if (string.IsNullOrEmpty(possibleValue.Description))
-                        {
-                            description.Append("No description provided");
-                        }
-                        else
-                        {
-                            description.Append(possibleValue.Description);
-                        }
-
+                        description.Append(possibleValue.Description);
                         description.AppendLine();
 
                         if (possibleValue.Aliases.Count > 1)
@@ -168,7 +152,7 @@ namespace InterAppConnector
                 }
                 else
                 {
-                    /**
+                    /*
                      * For other types, we have three cases:
                      * - no validators are defined
                      * - no examples are defined

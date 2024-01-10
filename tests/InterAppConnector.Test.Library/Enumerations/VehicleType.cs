@@ -19,7 +19,7 @@ namespace InterAppConnector.Test.Library.Enumerations
 
         Airplane = 20,
 
-        [ExcludeItemFromCommandAttribute]
+        [ExcludeItemFromCommand]
         Undefined = 25
     }
 }

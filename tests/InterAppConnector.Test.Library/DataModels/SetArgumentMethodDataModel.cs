@@ -81,12 +81,9 @@ namespace InterAppConnector.Test.Library.DataModels
 
         [ValueValidator(typeof(AgeValidatorWithCustomErrorMessageValidator))]
         public uint ValidatedValue { get; set; }
-
-        /*
-         * To check. There may be a bug here 
-         * [ValueValidator(typeof(CustomStringClassvalidator))]
+        
+        [ValueValidator(typeof(CustomStringClassValidator))]
         [CustomInputString]
         public CustomStringFormatClass OtherValidatedCustomClass { get; set; } 
-        */
     }
 }
