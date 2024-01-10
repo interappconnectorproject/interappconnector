@@ -80,13 +80,14 @@ namespace InterAppConnector
 
         internal static List<RuleType> MergeRules<RuleType>(List<RuleType> initialRules, List<RuleType> rulesToMerge)
         {
-            List<RuleType> resultingRules = initialRules;
+            Dictionary<string, RuleType> rules = new Dictionary<string, RuleType>();
 
-            List<RuleType> additionalRules = (from item in rulesToMerge
-                                           where !resultingRules.Contains(item)
-                                           select item).ToList();
+            foreach (RuleType rule in initialRules.Union(rulesToMerge)) 
+            {
+                rules.TryAdd(rule!.GetType().FullName!, rule);
+            }
 
-            return resultingRules.Union(additionalRules).ToList();
+            return rules.Values.ToList();
         }
 
         internal static bool IsSpecializedRule(IArgumentDefinitionRule rule)

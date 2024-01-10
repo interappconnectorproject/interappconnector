@@ -64,8 +64,10 @@ namespace InterAppConnector
 
                         foreach (Attribute attribute in distinctAttributes)
                         {
-                            rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentSettingRule>(findArgument.ParameterType));
+                            rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentSettingRule>(attribute.GetType()));
                         }
+
+                        rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentSettingRule>(findArgument.ParameterType));
 
                         foreach (var rule in from IArgumentSettingRule rule in rulesToExecute
                                              where rule.IsRuleEnabledInArgumentSetting(currentParameterObject.GetType().GetProperty(findArgument.OriginalPropertyName)!)
@@ -165,8 +167,10 @@ namespace InterAppConnector
 
                     foreach (Attribute attribute in distinctAttributes)
                     {
-                        rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentDefinitionRule>(parameterProperty.PropertyType));
+                        rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentDefinitionRule>(attribute.GetType()));
                     }
+
+                    rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentDefinitionRule>(parameterProperty.PropertyType));
 
                     foreach (var rule in from IArgumentDefinitionRule rule in rulesToExecute
                                          where rule.IsRuleEnabledInArgumentDefinition(parameterProperty)
