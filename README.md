@@ -19,8 +19,8 @@ You can create one or more modules (called commands) and call them in the same m
 - Easy integration and out-of-box experience with console applications
 - Integration with web applications, automated and non-interactive procedures (such as batch, jobs, automated tasks, ...) and other project types
 - Argument definition in classes. You can define mandatory and optional arguments that are checked before the command starts
+- Extensible
 - Support for obfuscated code (in preview)
-- Extensible (coming soon)
 
 # Quick example
 
@@ -89,10 +89,14 @@ You can create one or more modules (called commands) and call them in the same m
 
 	- In other applications, use the object returned by the `ExecuteAsBatch<ArgumentType>` method.
 		
-# Documentation
+# Documentation and code examples
 
 For advanced scenarios and in order to learn how to use the library efficiently, see the documentation provided with the library. Below you will find informations about how to find this documentation
 
 ## General documentation
 
 The general documentation is available in the [GitHub Wiki](https://github.com/interappconnectorproject/interappconnector/wiki) section.
+
+## Code examples
+
+The [InterAppConnector sample code repository](https://github.com/interappconnectorproject/interappconnector-samples) contains code examples that shows how to use the library
