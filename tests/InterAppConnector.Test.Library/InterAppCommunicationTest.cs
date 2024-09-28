@@ -276,6 +276,20 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        public void ExecuteAsBatch_WithACommandWithRule_ReturnValue()
+        {
+            CommandManager command = new CommandManager();
+            command.AddCommand<ProgramInfoCommand, ProgramInfoParameter>();
+            dynamic dynamic = new ExpandoObject();
+
+            InterAppCommunication connector = new InterAppCommunication(command);
+            CommandResult<InfoDataModel> commandExecution = connector.ExecuteAsBatch<InfoDataModel>("programinfo", dynamic);
+
+            Assert.That(commandExecution.Message.MessagesCount, Is.GreaterThan(0));
+            Assert.That(commandExecution.MessageStatus, Is.EqualTo(CommandExecutionMessageType.Success));
+        }
+
+        [Test]
         public void ExecuteAsBatch_WithWrongAction_ShouldNotReturnAnException()
         {
             CommandManager command = new CommandManager();
@@ -509,6 +523,22 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        public void ExecuteAsInteractiveCLI_TestExternalCommandWithExternalRule_ReturnNoErrors()
+        {
+            CommandManager command = new CommandManager();
+            command.AddCommand<ProgramInfoCommand, ProgramInfoParameter>();
+            string[] arguments = { "programinfo" };
+
+            Action connectorAction = () =>
+            {
+                InterAppCommunication connector = new InterAppCommunication(command);
+                connector.ExecuteAsInteractiveCLI(arguments);
+            };
+
+            Assert.That(connectorAction, Throws.Nothing);
+        }
+
+        [Test]
         public void CallSingleCommand_WithTestCommandConfiguredProperly_ReturnSuccessMessage()
         {
             dynamic dynamic = new ExpandoObject();
@@ -573,6 +603,19 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        public void CallSingleCommand_TestSingleCommandWithRuleInBatchMode_ReturnSuccessMessage()
+        {
+            dynamic arguments = new ExpandoObject();
+
+            InterAppCommunication connector = InterAppCommunication.CallSingleCommand<ProgramInfoCommand, ProgramInfoParameter>();
+            CommandResult<InfoDataModel> commandExecution = connector.ExecuteAsBatch<InfoDataModel>("programinfo", arguments);
+
+            Assert.That(commandExecution.Message.Version, Is.EqualTo("1.0.0.0"));
+            Assert.That(commandExecution.Message.MessagesCount, Is.GreaterThan(0));
+            Assert.That(commandExecution.MessageStatus, Is.EqualTo(CommandExecutionMessageType.Success));
+        }
+
+        [Test]
         public void CallSingleCommand_TestWarningMessageInBatchMode_ReturnWarningMessage()
         {
             dynamic arguments = new ExpandoObject();
@@ -602,6 +645,21 @@ namespace InterAppConnector.Test.Library
 
             Assert.That(commandExecution.Message, Is.EqualTo("This command is created in order to test the error message, so you can ignore this message if you want"));
             Assert.That(commandExecution.MessageStatus, Is.EqualTo(CommandExecutionMessageType.Failed));
+        }
+
+        [Test]
+        public void CallSingleCommand_TestSingleCommandWithRuleInInteractivehMode_ReturnSuccessMessage()
+        {
+            string[] arguments = { "programinfo" };
+
+            Action connectorAction = () =>
+            {
+                InterAppCommunication connector = InterAppCommunication.CallSingleCommand<ProgramInfoCommand, ProgramInfoParameter>();
+                connector.ExecuteAsInteractiveCLI(arguments);
+            };
+
+            Assert.That(connectorAction, Throws.Nothing);
+            Assert.That(Environment.ExitCode, Is.EqualTo(0));
         }
 
         [TestCase(CommandOutputFormat.Text)]
