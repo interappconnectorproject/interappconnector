@@ -378,6 +378,7 @@ namespace InterAppConnector.Test.Library
         [TestCase("ab")]
         //
         [TestCase("")]
+        [TestCase(" ")]
         //
         public void SetArgument_ParameterWithWrongCustomString_ReturnArgumentException(string value)
         {

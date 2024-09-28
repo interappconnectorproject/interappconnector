@@ -18,6 +18,11 @@ namespace InterAppConnector
         /// <param name="message">The raw object</param>
         public delegate void StatusEventHandler(CommandExecutionMessageType messageStatus, int exitCode, object message);
 
+        public static event StatusEventHandler SuccessMessageEmitting;
+        public static event StatusEventHandler InfoMessageEmitting;
+        public static event StatusEventHandler WarningMessageEmitting;
+        public static event StatusEventHandler ErrorMessageEmitting;
+
         internal static event StatusEventHandler SuccessMessageEmitted;
         internal static event StatusEventHandler InfoMessageEmitted;
         internal static event StatusEventHandler WarningMessageEmitted;
@@ -36,10 +41,17 @@ namespace InterAppConnector
             result.Message = message;
             result.MessageStatus = CommandExecutionMessageType.Success;
             Environment.ExitCode = statusCode;
+
+            if (SuccessMessageEmitting != null)
+            {
+                SuccessMessageEmitting.Invoke(result.MessageStatus, statusCode, result);
+            }
+            
             if (SuccessMessageEmitted != null)
             {
                 SuccessMessageEmitted.Invoke(result.MessageStatus, statusCode, result);
             }
+
             return JsonSerializer.Serialize(result);
         }
 
@@ -56,10 +68,17 @@ namespace InterAppConnector
             result.Message = message;
             result.MessageStatus = CommandExecutionMessageType.Info;
             Environment.ExitCode = statusCode;
+
+            if (InfoMessageEmitting != null)
+            {
+                InfoMessageEmitting.Invoke(result.MessageStatus, statusCode, result);
+            }
+
             if (InfoMessageEmitted != null)
             {
                 InfoMessageEmitted.Invoke(result.MessageStatus, statusCode, result);
             }
+
             return JsonSerializer.Serialize(result);
         }
 
@@ -76,10 +95,17 @@ namespace InterAppConnector
             result.Message = message;
             result.MessageStatus = CommandExecutionMessageType.Warning;
             Environment.ExitCode = statusCode;
+
+            if (WarningMessageEmitting != null) 
+            {
+                WarningMessageEmitting.Invoke(result.MessageStatus, statusCode, result);
+            }
+            
             if (WarningMessageEmitted != null)
             {
                 WarningMessageEmitted.Invoke(result.MessageStatus, statusCode, result);
             }
+
             return JsonSerializer.Serialize(result);
         }
 
@@ -96,10 +122,17 @@ namespace InterAppConnector
             result.Message = message;
             result.MessageStatus = CommandExecutionMessageType.Failed;
             Environment.ExitCode = statusCode;
+
+            if (ErrorMessageEmitting != null)
+            {
+                ErrorMessageEmitting.Invoke(result.MessageStatus, statusCode, result);
+            }
+
             if (ErrorMessageEmitted != null)
             {
                 ErrorMessageEmitted.Invoke(result.MessageStatus, statusCode, result);
             }
+
             return JsonSerializer.Serialize(result);
         }
 
