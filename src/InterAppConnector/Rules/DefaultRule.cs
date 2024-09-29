@@ -78,7 +78,7 @@ namespace InterAppConnector.Rules
             }
             bool isEnumType = parameterType.IsEnum;
             bool isValueTypeAndIsNotAStruct = parameterType.IsValueType && !StructHelper.IsStruct(parameterType);
-            return isEnumType || isValueTypeAndIsNotAStruct;
+            return isEnumType || isValueTypeAndIsNotAStruct || property.PropertyType == typeof(string);
         }
 
         public bool IsRuleEnabledInArgumentSetting(FieldInfo field)

@@ -9,5 +9,6 @@ namespace InterAppConnector.Test.Library.DataModels
         // This format is used for example in Germany 
         [CustomInputString("llllnnnn")]
         public LicensePlate LicensePlate { get; set; } = new LicensePlate("aaaa0000");
+        public string Manufacturer { get; set; } = "";
     }
 }
