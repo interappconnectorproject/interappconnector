@@ -24,8 +24,6 @@ namespace InterAppConnector.App.CLI.SampleApplication
 
             InterAppCommunication connector = new InterAppCommunication(command);
             connector.ExecuteAsInteractiveCLI(args);
-
-            Console.ReadLine();
         }
     }
 }

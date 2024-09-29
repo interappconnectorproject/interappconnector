@@ -132,6 +132,7 @@ namespace InterAppConnector.Test.Library
             dynamic parameters = new ExpandoObject();
             ((IDictionary<string, object>)parameters)[nameof(vehicle.Type)] = "motorcycle";
             ((IDictionary<string, object>)parameters)[nameof(vehicle.LicensePlate)] = "abcd1234";
+            ((IDictionary<string, object>)parameters)[nameof(vehicle.Manufacturer)] = "UnitTest";
 
             InterAppCommunication connector = new InterAppCommunication(command);
             CommandResult<Vehicle> commandExecution = connector.ExecuteAsBatch<Vehicle>("testvehicle", parameters);
@@ -139,6 +140,7 @@ namespace InterAppConnector.Test.Library
             Assert.That(commandExecution.MessageStatus, Is.EqualTo(CommandExecutionMessageType.Success));
             Assert.That(commandExecution.Message.Type, Is.EqualTo(VehicleType.Motorbike));
             Assert.That(commandExecution.Message.LicensePlate.Plate, Is.EqualTo("abcd1234"));
+            Assert.That(commandExecution.Message.Manufacturer, Is.EqualTo("UnitTest"));
         }
 
         [Test]
@@ -149,6 +151,7 @@ namespace InterAppConnector.Test.Library
             dynamic dynamic = new ExpandoObject();
             dynamic.type = "motorcycle";
             dynamic.licenseplate = "abcd1234";
+            dynamic.manufacturer = "UnitTest";
 
             InterAppCommunication connector = new InterAppCommunication(command);
             CommandResult<Vehicle> commandExecution = connector.ExecuteAsBatch<Vehicle>("testvehicle", dynamic);
@@ -156,6 +159,7 @@ namespace InterAppConnector.Test.Library
             Assert.That(commandExecution.MessageStatus, Is.EqualTo(CommandExecutionMessageType.Success));
             Assert.That(commandExecution.Message.Type, Is.EqualTo(VehicleType.Motorbike));
             Assert.That(commandExecution.Message.LicensePlate.Plate, Is.EqualTo("abcd1234"));
+            Assert.That(commandExecution.Message.Manufacturer, Is.EqualTo("UnitTest"));
         }
 
         /// llllnnnn
@@ -174,7 +178,7 @@ namespace InterAppConnector.Test.Library
             };
 
             Assert.That(connectorAction, Throws.InstanceOf<MissingMandatoryArgumentException>()
-                .And.Property("MissingParameters").Count.EqualTo(1));
+                .And.Property("MissingParameters").Count.EqualTo(2));
         }
 
         [Test]
@@ -311,7 +315,7 @@ namespace InterAppConnector.Test.Library
         {
             CommandManager command = new CommandManager();
             command.AddCommand<VehicleTestCommand, Vehicle>();
-            string[] arguments = { "testvehicle", "-type", "motorcycle", "-licenseplate", "abcd1234" };
+            string[] arguments = { "testvehicle", "-type", "motorcycle", "-licenseplate", "abcd1234", "-manufacturer", "UnitTest" };
 
             Action connectorAction = () =>
             {
@@ -544,6 +548,7 @@ namespace InterAppConnector.Test.Library
             dynamic dynamic = new ExpandoObject();
             dynamic.type = "motorcycle";
             dynamic.licenseplate = "abcd1234";
+            dynamic.manufacturer = "UnitTest";
 
             InterAppCommunication connector = InterAppCommunication.CallSingleCommand<VehicleTestCommand, Vehicle>();
             CommandResult<Vehicle> commandExecution = connector.ExecuteAsBatch<Vehicle>("testvehicle", dynamic);
@@ -551,6 +556,7 @@ namespace InterAppConnector.Test.Library
             Assert.That(commandExecution.MessageStatus, Is.EqualTo(CommandExecutionMessageType.Success));
             Assert.That(commandExecution.Message.Type, Is.EqualTo(VehicleType.Motorbike));
             Assert.That(commandExecution.Message.LicensePlate.Plate, Is.EqualTo("abcd1234"));
+            Assert.That(commandExecution.Message.Manufacturer, Is.EqualTo("UnitTest"));
         }
 
         [Test]
@@ -583,7 +589,7 @@ namespace InterAppConnector.Test.Library
             };
 
             Assert.That(connectorAction, Throws.InstanceOf<MissingMandatoryArgumentException>()
-                .And.Property("MissingParameters").Count.EqualTo(1));
+                .And.Property("MissingParameters").Count.EqualTo(2));
         }
 
         [Test]
