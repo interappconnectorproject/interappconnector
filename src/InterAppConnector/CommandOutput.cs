@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Collections;
+using System.Text.Json;
 using InterAppConnector.DataModels;
 using InterAppConnector.Enumerations;
 using InterAppConnector.Exceptions;
@@ -27,6 +28,61 @@ namespace InterAppConnector
         internal static event StatusEventHandler InfoMessageEmitted;
         internal static event StatusEventHandler WarningMessageEmitted;
         internal static event StatusEventHandler ErrorMessageEmitted;
+
+        /// <summary>
+        /// Check if the method in event <paramref name="eventToAttach"/> is already added in <paramref name="targetEvent"/> invocation list.
+        /// </summary>
+        /// <param name="targetEvent">The target event</param>
+        /// <param name="eventToAttach">The event to add</param>
+        /// <returns><see langword="true"/> if the event is already attached, otherwise <see langword="false"/></returns>
+        public static bool IsEventAlreadyAttached(Delegate targetEvent, Delegate eventToAttach)
+        {
+            bool isEventFound = false;
+            if (targetEvent != null && eventToAttach != null)
+            {
+                /*
+                 * It's important to compare the parameters used by targetEvent and eventToAdd.
+                 * If the parameters and the name are the same, it is possible to say that 
+                 * it is using the same delegate that is already added. The comparison between arrays should be done
+                 * via IStructuralEquatable because this method check if the structure of the array is equal, and not
+                 * the reference
+                 */
+                IStructuralEquatable eventToCompare = eventToAttach.Method.GetParameters();
+
+                isEventFound = (from item in targetEvent.GetInvocationList()
+                                where item.Method.Name == eventToAttach.Method.Name
+                                && eventToCompare.Equals(item.Method.GetParameters(), StructuralComparisons.StructuralEqualityComparer)
+                                select item).Any();
+            }
+            return isEventFound;
+        }
+
+        public static bool IsSuccessEventAlreadyAttached(Delegate eventToFind)
+        {
+            return IsEventAlreadyAttached(SuccessMessageEmitted, eventToFind);
+        }
+
+        public static bool IsWarningEventAlreadyAttached(Delegate eventToFind)
+        {
+            return IsEventAlreadyAttached(WarningMessageEmitted, eventToFind);
+        }
+        public static bool IsErrorEventAlreadyAttached(Delegate eventToFind)
+        {
+            return IsEventAlreadyAttached(ErrorMessageEmitted, eventToFind);
+        }
+
+        public static bool IsInfoEventAlreadyAttached(Delegate eventToFind)
+        {
+            return IsEventAlreadyAttached(InfoMessageEmitted, eventToFind);
+        }
+
+        internal static void ClearEvents()
+        {
+            SuccessMessageEmitted = null!;
+            WarningMessageEmitted = null!;
+            ErrorMessageEmitted = null!;
+            InfoMessageEmitted = null!;
+        }
 
         /// <summary>
         /// Return a positive message that an operation has been completed successfully
