@@ -64,12 +64,32 @@ namespace InterAppConnector
         /// <param name="arguments">Arguments passed to the CLI</param>
         public void ExecuteAsInteractiveCLI(string[] arguments, CommandOutputFormat commandOutputFormat = CommandOutputFormat.Text)
         {
+            CommandExecutionType currentCommandExecutionType = _commandExecutionType;
+            CommandOutputFormat currentCommandOutputFormat = CommandOutputFormat;
+
             _commandExecutionType = CommandExecutionType.Interactive;
             CommandOutputFormat = commandOutputFormat;
-            CommandOutput.ErrorMessageEmitted += CommandOutput_ErrorMessageEmitted;
-            CommandOutput.SuccessMessageEmitted += CommandOutput_SuccessMessageEmitted;
-            CommandOutput.InfoMessageEmitted += CommandOutput_InfoMessageEmitted;
-            CommandOutput.WarningMessageEmitted += CommandOutput_WarningMessageEmitted;
+
+            if (!IsErrorEventAlreadyAttached(CommandOutput_ErrorMessageEmitted))
+            {
+                CommandOutput.ErrorMessageEmitted += CommandOutput_ErrorMessageEmitted;
+            }
+            
+            if (!IsSuccessEventAlreadyAttached(CommandOutput_SuccessMessageEmitted))
+            {
+                CommandOutput.SuccessMessageEmitted += CommandOutput_SuccessMessageEmitted;
+            }
+            
+            if (!IsInfoEventAlreadyAttached(CommandOutput_InfoMessageEmitted))
+            {
+                CommandOutput.InfoMessageEmitted += CommandOutput_InfoMessageEmitted;
+            }
+            
+            if (!IsWarningEventAlreadyAttached(CommandOutput_WarningMessageEmitted))
+            {
+                CommandOutput.WarningMessageEmitted += CommandOutput_WarningMessageEmitted;
+            }
+            
             string selectedAction = "";
             Argument argumentsParsed = Argument.Parse(arguments, "-");
 
@@ -115,6 +135,9 @@ namespace InterAppConnector
             {
                 Console.Write(CommandUtil.DescribeCommands(_commandManager));
             }
+
+            _commandExecutionType = currentCommandExecutionType;
+            CommandOutputFormat = currentCommandOutputFormat;
         }
 
         /// <summary>
@@ -129,13 +152,32 @@ namespace InterAppConnector
         /// <returns>The raw string returned by the requested command</returns>
         public string ExecuteAsBatch(string action, dynamic parameters, CommandOutputFormat commandOutputFormat = CommandOutputFormat.Json)
         {
+            CommandExecutionType currentCommandExecutionType = _commandExecutionType;
+            CommandOutputFormat currentCommandOutputFormat = CommandOutputFormat;
+
             string output = "";
             _commandExecutionType = CommandExecutionType.Batch;
             CommandOutputFormat = commandOutputFormat;
-            CommandOutput.ErrorMessageEmitted += CommandOutput_ErrorMessageEmitted;
-            CommandOutput.SuccessMessageEmitted += CommandOutput_SuccessMessageEmitted;
-            CommandOutput.InfoMessageEmitted += CommandOutput_InfoMessageEmitted;
-            CommandOutput.WarningMessageEmitted += CommandOutput_WarningMessageEmitted;
+
+            if (!IsErrorEventAlreadyAttached(CommandOutput_ErrorMessageEmitted))
+            {
+                CommandOutput.ErrorMessageEmitted += CommandOutput_ErrorMessageEmitted;
+            }
+
+            if (!IsSuccessEventAlreadyAttached(CommandOutput_SuccessMessageEmitted))
+            {
+                CommandOutput.SuccessMessageEmitted += CommandOutput_SuccessMessageEmitted;
+            }
+
+            if (!IsInfoEventAlreadyAttached(CommandOutput_InfoMessageEmitted))
+            {
+                CommandOutput.InfoMessageEmitted += CommandOutput_InfoMessageEmitted;
+            }
+
+            if (!IsWarningEventAlreadyAttached(CommandOutput_WarningMessageEmitted))
+            {
+                CommandOutput.WarningMessageEmitted += CommandOutput_WarningMessageEmitted;
+            }
 
             Argument argumentsParsed = Argument.Parse(parameters, "-");
             argumentsParsed.Action.AddRange(action.Split(" ", StringSplitOptions.RemoveEmptyEntries));
@@ -171,6 +213,10 @@ namespace InterAppConnector
                     output = Error("Cannot execute the selected action because this action does not exist." + Environment.NewLine + CommandUtil.DescribeCommands(_commandManager, false));
                 }
             }
+
+            _commandExecutionType = currentCommandExecutionType;
+            CommandOutputFormat = currentCommandOutputFormat;
+
             return output;
         }
 

@@ -16,7 +16,14 @@ namespace InterAppConnector.Test.Library
     {
         const string Action = "testbatch";
 
+        [SetUp]
+        public void Setup()
+        {
+            CommandOutput.ClearEvents();
+        }
+
         [Test]
+        [Order(10)]
         public void ExecuteAsBatch_ExecuteBatchTestCommandWithSuccessfulMessage_ReturnSuccessfulMessage()
         {
             CommandManager manager = new CommandManager();
@@ -37,6 +44,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(20)]
         public void ExecuteAsBatch_ExecuteBatchTestCommandWithBooleanSet_ReturnSuccessfulMessage()
         {
             CommandManager manager = new CommandManager();
@@ -60,6 +68,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(30)]
         public void ExecuteAsBatch_ExecuteBatchTestCommandWithWarningMessage_ReturnWarningMessage()
         {
             CommandManager manager = new CommandManager();
@@ -80,6 +89,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(40)]
         public void ExecuteAsBatch_ExecuteBatchTestCommandWithInfoMessage_ReturnInfoMessage()
         {
             CommandManager manager = new CommandManager();
@@ -100,6 +110,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(50)]
         public void ExecuteAsBatch_ExecuteBatchTestCommandWithFailureMessage_ReturnFailureMessage()
         {
             CommandManager manager = new CommandManager();
@@ -124,6 +135,7 @@ namespace InterAppConnector.Test.Library
         [Description("This test case is useful in order to test the use of the parameters when their name is not known, " +
             "for instance in the case of a code obfuscation. In fact, during code obfuscation the name of" +
             "the properties may be replaced with other names")]
+        [Order(60)]
         public void ExecuteAsBatch_WithEnumAndAliasCorrectParametersAndFieldName_ReturnSuccessfulObject()
         {
             CommandManager command = new CommandManager();
@@ -144,6 +156,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(70)]
         public void ExecuteAsBatch_WithEnumAndAliasAndCorrectParameters_ReturnSuccessfulObject()
         {
             CommandManager command = new CommandManager();
@@ -164,6 +177,7 @@ namespace InterAppConnector.Test.Library
 
         /// llllnnnn
         [Test]
+        [Order(80)]
         public void ExecuteAsBatch_WithEnumAndAliasAndWrongParameters_ReturnFailureObject()
         {
             CommandManager command = new CommandManager();
@@ -182,6 +196,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(90)]
         public void ExecuteAsBatch_WithMissingValueTypeArguments_ReturnMissingArgumentExceptions()
         {
             CommandManager command = new CommandManager();
@@ -199,6 +214,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(100)]
         public void ExecuteAsBatch_WithMissingOptionalValueTypeArguments_ReturnValue()
         {
             CommandManager command = new CommandManager();
@@ -219,6 +235,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(110)]
         public void ExecuteAsBatch_WithMissingValidatedOptionalValueTypeArguments_ReturnNoErrors()
         {
             CommandManager command = new CommandManager();
@@ -239,6 +256,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(120)]
         public void ExecuteAsBatch_WithWrongOptionalValueTypeArguments_ReturnArgumetnExceptionError()
         {
             CommandManager command = new CommandManager();
@@ -259,6 +277,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(130)]
         public void ExecuteAsBatch_WithAllValueTypeArgumentsSet_ReturnValue()
         {
             CommandManager command = new CommandManager();
@@ -280,6 +299,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(140)]
         public void ExecuteAsBatch_WithACommandWithRule_ReturnValue()
         {
             CommandManager command = new CommandManager();
@@ -294,6 +314,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(150)]
         public void ExecuteAsBatch_WithWrongAction_ShouldNotReturnAnException()
         {
             CommandManager command = new CommandManager();
@@ -311,6 +332,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(160)]
         public void ExecuteAsInteractiveCLI_WithEnumAndAliasAndCorrectParameters_ReturnSuccessfulStatusCode()
         {
             CommandManager command = new CommandManager();
@@ -328,6 +350,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(170)]
         public void ExecuteAsInteractiveCLI_WithWrongEnum_ReturnFailureStatusCode()
         {
             CommandManager command = new CommandManager();
@@ -345,6 +368,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(180)]
         public void ExecuteAsInteractiveCLI_WithMissingValueTypeArguments_ReturnMissingArgumentMessage()
         {
             CommandManager command = new CommandManager();
@@ -362,6 +386,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(190)]
         public void ExecuteAsInteractiveCLI_WithBooleanValue_ReturnNoErrorMessage()
         {
             CommandManager command = new CommandManager();
@@ -379,6 +404,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(200)]
         public void ExecuteAsInteractiveCLI_WithMissingOptionalValueTypeArguments_ReturnValue()
         {
             CommandManager command = new CommandManager();
@@ -396,6 +422,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(210)]
         public void ExecuteAsInteractiveCLI_ValidatedMissingArgument_ReturnError()
         {
             CommandManager command = new CommandManager();
@@ -413,6 +440,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(220)]
         public void ExecuteAsInteractiveCLI_WithWrongOptionalValueTypeArguments_ReturnError()
         {
             CommandManager command = new CommandManager();
@@ -430,6 +458,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(230)]
         public void ExecuteAsInteractiveCLI_WithMissingValidatedOptionalValueTypeArguments_ReturnValue()
         {
             CommandManager command = new CommandManager();
@@ -447,6 +476,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(240)]
         public void ExecuteAsInteractiveCLI_WithAllValueTypeArgumentsSet_ReturnValue()
         {
             CommandManager command = new CommandManager();
@@ -464,6 +494,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(250)]
         public void ExecuteAsInteractiveCLI_WithWrongValidator_ReturnNoErrors()
         {
             CommandManager command = new CommandManager();
@@ -481,6 +512,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(260)]
         public void ExecuteAsInteractiveCLI_WithInexistentAction_ReturnFailureStatusCode()
         {
             CommandManager command = new CommandManager();
@@ -504,6 +536,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(270)]
         public void ExecuteAsInteractiveCLI_WithNoAction_ReturnNoErrors()
         {
             CommandManager command = new CommandManager();
@@ -527,6 +560,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(280)]
         public void ExecuteAsInteractiveCLI_TestExternalCommandWithExternalRule_ReturnNoErrors()
         {
             CommandManager command = new CommandManager();
@@ -543,6 +577,29 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(290)]
+        public void ExecuteAsInteractiveCLI_TestExternalCommandWithNestedCommands_ReturnNoErrors()
+        { 
+            var currentConsoleOutput = Console.Out;
+            StringWriter consoleOutput = new StringWriter();
+            Console.SetOut(consoleOutput);
+            CommandManager command = new CommandManager();
+            command.AddCommand<ProgramInfoCommand, ProgramInfoParameter>();
+            string[] arguments = { "programinfo" };
+
+            Action connectorAction = () =>
+            {
+                InterAppCommunication connector = new InterAppCommunication(command);
+                connector.ExecuteAsInteractiveCLI(arguments);
+            };
+
+            Assert.That(connectorAction, Throws.Nothing);
+            Assert.That(consoleOutput.ToString().Split(Environment.NewLine).LongLength, Is.EqualTo(5));
+            Console.SetOut(currentConsoleOutput);
+        }
+
+        [Test]
+        [Order(300)]
         public void CallSingleCommand_WithTestCommandConfiguredProperly_ReturnSuccessMessage()
         {
             dynamic dynamic = new ExpandoObject();
@@ -560,6 +617,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(310)]
         public void CallSingleCommand_WithWrongAction_ShouldNotReturnAnException()
         {
             dynamic dynamic = new ExpandoObject();
@@ -577,6 +635,7 @@ namespace InterAppConnector.Test.Library
 
         /// llllnnnn
         [Test]
+        [Order(320)]
         public void CallSingleCommand_WithEnumAndAliasAndWrongParameters_ReturnFailureObject()
         {
             dynamic dynamic = new ExpandoObject();
@@ -593,6 +652,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(330)]
         public void CallSingleCommand_TestSuccessMessageInBatchMode_ReturnSuccessMessage()
         {
             dynamic arguments = new ExpandoObject();
@@ -609,6 +669,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(340)]
         public void CallSingleCommand_TestSingleCommandWithRuleInBatchMode_ReturnSuccessMessage()
         {
             dynamic arguments = new ExpandoObject();
@@ -622,6 +683,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(350)]
         public void CallSingleCommand_TestWarningMessageInBatchMode_ReturnWarningMessage()
         {
             dynamic arguments = new ExpandoObject();
@@ -638,6 +700,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(360)]
         public void CallSingleCommand_TestErrorMessageInBatchMode_ReturnErrorMessage()
         {
             dynamic arguments = new ExpandoObject();
@@ -654,6 +717,7 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
+        [Order(370)]
         public void CallSingleCommand_TestSingleCommandWithRuleInInteractivehMode_ReturnSuccessMessage()
         {
             string[] arguments = { "programinfo" };
@@ -670,6 +734,7 @@ namespace InterAppConnector.Test.Library
 
         [TestCase(CommandOutputFormat.Text)]
         [TestCase(CommandOutputFormat.Json)]
+        [Order(380)]
         public void CallSingleCommand_TestSuccessMessageInInteractiveMode_ReturnSuccessMessage(CommandOutputFormat format)
         {
             // no assumptions
@@ -682,6 +747,7 @@ namespace InterAppConnector.Test.Library
 
         [TestCase(CommandOutputFormat.Text)]
         [TestCase(CommandOutputFormat.Json)]
+        [Order(390)]
         public void CallSingleCommand_TestWarningMessageInInteractiveMode_ReturnWarningMessage(CommandOutputFormat format)
         {
             // no assumptions
@@ -694,6 +760,7 @@ namespace InterAppConnector.Test.Library
 
         [TestCase(CommandOutputFormat.Text)]
         [TestCase(CommandOutputFormat.Json)]
+        [Order(400)]
         public void CallSingleCommand_TestErrorMessageInInteractiveMode_ReturnErrorMessage(CommandOutputFormat format)
         {
             // no assumptions

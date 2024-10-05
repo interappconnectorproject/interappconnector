@@ -1,17 +1,91 @@
 ﻿using InterAppConnector.DataModels;
 using InterAppConnector.Enumerations;
 using InterAppConnector.Exceptions;
-using InterAppConnector.Interfaces;
 using InterAppConnector.Test.Library.DataModels;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using System.Collections.Generic;
 using System.Dynamic;
 
 namespace InterAppConnector.Test.Library
 {
     public class CommandOutputTest
     {
+        private delegate void TestDelegate();
+
+        private event TestDelegate TestEvent;
+
+        [Test]
+        public void IsEventAlreadyAttached_CompareWithTwoSameEvent_ShouldReturnTrue()
+        {
+            TestEvent += CommandOutputTest_TestEvent;
+            TestEvent += CommandOutputTest_TestEvent2;
+
+            TestEvent.Invoke();
+
+            Assert.That(CommandOutput.IsEventAlreadyAttached(TestEvent, CommandOutputTest_TestEvent2), Is.True);
+        }
+
+        [Test]
+        public void IsEventAlreadyAttached_CompareWithDifferentEventsWithTheSameName_ShouldReturnTrue()
+        {
+            TestEvent += CommandOutputTest_TestEvent;
+            TestEvent += CommandOutputTest_TestEvent2;
+            TestEvent += CommandOutputTest_TestEvent;
+            TestEvent += CommandOutputTest_TestEvent2;
+
+            TestEvent.Invoke();
+
+            Assert.That(CommandOutput.IsEventAlreadyAttached(TestEvent, CommandOutputTest_TestEvent2), Is.True);
+        }
+
+        [Test]
+        public void IsEventAlreadyAttached_CompareWitANullEvent_ShouldReturnFalse()
+        {
+            TestEvent += CommandOutputTest_TestEvent;
+            TestEvent += CommandOutputTest_TestEvent2;
+
+            TestEvent.Invoke();
+
+            Assert.That(CommandOutput.IsEventAlreadyAttached(TestEvent, null), Is.False);
+        }
+
+        [Test]
+        public void IsEventAlreadyAttached_CompareWitANullTarget_ShouldReturnFalse()
+        {
+            TestEvent += CommandOutputTest_TestEvent;
+            TestEvent += CommandOutputTest_TestEvent2;
+
+            TestEvent.Invoke();
+
+            Assert.That(CommandOutput.IsEventAlreadyAttached(null, CommandOutputTest_TestEvent2), Is.False);
+        }
+
+        [Test]
+        public void IsEventAlreadyAttached_CompareAllNull_ShouldReturnFalse()
+        {
+            TestEvent += CommandOutputTest_TestEvent;
+            TestEvent += CommandOutputTest_TestEvent2;
+
+            TestEvent.Invoke();
+
+            Assert.That(CommandOutput.IsEventAlreadyAttached(null, null), Is.False);
+        }
+
+        private void CommandOutputTest_TestEvent()
+        {
+            Assert.That(CommandOutput.IsEventAlreadyAttached(TestEvent, CommandOutputTest_TestEvent1), Is.False);
+        }
+
+        private void CommandOutputTest_TestEvent1()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void CommandOutputTest_TestEvent2()
+        {
+            Assert.That(CommandOutput.IsEventAlreadyAttached(TestEvent, CommandOutputTest_TestEvent1), Is.False);
+        }
+
         [Test]
         public void Parse_ParseSuccessMessage_ReturnSuccessMessage()
         {
