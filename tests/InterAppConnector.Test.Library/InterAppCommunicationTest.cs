@@ -718,6 +718,19 @@ namespace InterAppConnector.Test.Library
 
         [Test]
         [Order(370)]
+        public void CallSingleCommand_TestCommandWithCustomDefinitionRule_ReturnObjectMessage()
+        {
+            dynamic arguments = new ExpandoObject();
+
+            InterAppCommunication connector = InterAppCommunication.CallSingleCommand<CustomObjectDefinitionRuleCommand, DataModelWithCustomObjectDefinitionRule>();
+            CommandResult<DataModelWithCustomObjectDefinitionRule> commandExecution = connector.ExecuteAsBatch<DataModelWithCustomObjectDefinitionRule>("customobjectdefinitionrulecommand", arguments);
+
+            Assert.That(commandExecution.MessageStatus, Is.EqualTo(CommandExecutionMessageType.Success));
+            Assert.That(commandExecution.Message.Argument.Count, Is.GreaterThan(0));
+        }
+
+        [Test]
+        [Order(380)]
         public void CallSingleCommand_TestSingleCommandWithRuleInInteractivehMode_ReturnSuccessMessage()
         {
             string[] arguments = { "programinfo" };
@@ -734,7 +747,7 @@ namespace InterAppConnector.Test.Library
 
         [TestCase(CommandOutputFormat.Text)]
         [TestCase(CommandOutputFormat.Json)]
-        [Order(380)]
+        [Order(390)]
         public void CallSingleCommand_TestSuccessMessageInInteractiveMode_ReturnSuccessMessage(CommandOutputFormat format)
         {
             // no assumptions
@@ -747,7 +760,7 @@ namespace InterAppConnector.Test.Library
 
         [TestCase(CommandOutputFormat.Text)]
         [TestCase(CommandOutputFormat.Json)]
-        [Order(390)]
+        [Order(400)]
         public void CallSingleCommand_TestWarningMessageInInteractiveMode_ReturnWarningMessage(CommandOutputFormat format)
         {
             // no assumptions
@@ -760,7 +773,7 @@ namespace InterAppConnector.Test.Library
 
         [TestCase(CommandOutputFormat.Text)]
         [TestCase(CommandOutputFormat.Json)]
-        [Order(400)]
+        [Order(410)]
         public void CallSingleCommand_TestErrorMessageInInteractiveMode_ReturnErrorMessage(CommandOutputFormat format)
         {
             // no assumptions

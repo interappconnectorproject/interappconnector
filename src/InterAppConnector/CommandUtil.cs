@@ -34,7 +34,7 @@ namespace InterAppConnector
             {
                 lineLength = Console.WindowWidth / divisor;
             }
-            catch 
+            catch
             {
                 /*
                  * This line is useful for VS Test Explorer in order to pass the test without errors.
