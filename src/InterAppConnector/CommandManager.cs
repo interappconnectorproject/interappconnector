@@ -176,7 +176,7 @@ namespace InterAppConnector
                                          where rule.IsRuleEnabledInArgumentDefinition(parameterProperty)
                                          select rule)
                     {
-                        if (RuleManager.IsSpecializedRule(rule))
+                        if (RuleManager.IsAttributeSpecializedRule(rule))
                         {
                             Type argumentType = rule.GetType().GetInterface(typeof(IArgumentDefinitionRule<>).FullName!)!.GetGenericArguments()[0];
 
@@ -192,6 +192,13 @@ namespace InterAppConnector
                             {
                                 descriptor = rule.DefineArgumentIfTypeDoesNotExist(parameterObject, parameterProperty, descriptor);
                             }
+                        }
+                        else if (RuleManager.IsObjectSpecializedRule(rule))
+                        {
+                            if (rule.GetType().GetInterface(typeof(IArgumentDefinitionRule<>).FullName!)!.GetGenericArguments()[0] == parameterProperty.PropertyType)
+                            {
+                                descriptor = rule.DefineArgumentIfTypeExists(parameterObject, parameterProperty, descriptor);
+                            }                            
                         }
                         else
                         {
