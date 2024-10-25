@@ -92,12 +92,32 @@ namespace InterAppConnector
 
         internal static bool IsSpecializedRule(IArgumentDefinitionRule rule)
         {
-            return (from item in rule.GetType().GetInterfaces() where item.FullName!.StartsWith(typeof(IArgumentDefinitionRule<>).FullName!) select item).Any();
+            return (from item in rule.GetType().GetInterfaces() 
+                    where item.FullName!.StartsWith(typeof(IArgumentDefinitionRule<>).FullName!) 
+                    select item).Any();
         }
 
         internal static bool IsSpecializedRule(IArgumentSettingRule rule)
         {
-            return (from item in rule.GetType().GetInterfaces() where item.FullName!.StartsWith(typeof(IArgumentSettingRule<>).FullName!) select item).Any();
+            return (from item in rule.GetType().GetInterfaces()
+                    where item.FullName!.StartsWith(typeof(IArgumentSettingRule<>).FullName!)
+                    select item).Any();
+        }
+
+        internal static bool IsAttributeSpecializedRule(IArgumentDefinitionRule rule)
+        {
+            return IsSpecializedRule(rule) && (from item in rule.GetType().GetInterfaces()
+                                               where item.GenericTypeArguments.Length > 0
+                                               where item.GenericTypeArguments[0].IsSubclassOf(typeof(Attribute)) 
+                                               select item).Any();
+        }
+
+        internal static bool IsObjectSpecializedRule(IArgumentDefinitionRule rule)
+        {
+            return IsSpecializedRule(rule) && (from item in rule.GetType().GetInterfaces()
+                                               where item.GenericTypeArguments.Length > 0
+                                               where !item.GenericTypeArguments[0].IsSubclassOf(typeof(Attribute)) 
+                                               select item).Any();
         }
     }
 }
