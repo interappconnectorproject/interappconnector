@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace InterAppConnector.Test.Library.DataModels
 {
-    public class DataModelWithCustomObjectDefinitionRule
+    public class DataModelWithCustomObjectSettingRule
     {
-        public ArgumentWithCustomDefinitionRule Argument {  get; set; }
+        public ArgumentWithCustomSettingRule Argument { get; set; }
     }
 }

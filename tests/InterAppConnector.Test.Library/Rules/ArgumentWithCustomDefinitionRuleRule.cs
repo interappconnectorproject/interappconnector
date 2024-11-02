@@ -1,6 +1,7 @@
 ﻿using InterAppConnector.DataModels;
 using InterAppConnector.Interfaces;
 using InterAppConnector.Test.Library.DataModels;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace InterAppConnector.Test.Library.Rules
 {
-    public class CustomObjectDefinitionRule : IArgumentDefinitionRule<ArgumentWithCustomRule>
+    public class ArgumentWithCustomDefinitionRuleRule : IArgumentDefinitionRule<ArgumentWithCustomDefinitionRule>
     {
         public ParameterDescriptor DefineArgumentIfTypeDoesNotExist(object parentObject, PropertyInfo property, ParameterDescriptor descriptor)
         {
@@ -29,7 +30,7 @@ namespace InterAppConnector.Test.Library.Rules
 
         public ParameterDescriptor DefineArgumentIfTypeExists(object parentObject, PropertyInfo property, ParameterDescriptor descriptor)
         {
-            ArgumentWithCustomRule rule = new ArgumentWithCustomRule
+            ArgumentWithCustomDefinitionRule rule = new ArgumentWithCustomDefinitionRule
             {
                 Count = 1
             };
@@ -52,6 +53,16 @@ namespace InterAppConnector.Test.Library.Rules
         public bool IsRuleEnabledInArgumentDefinition(FieldInfo field)
         {
             return false;
+        }
+
+        [Theory]
+        public void TestDefineRule_ShouldReturnTrue()
+        {
+            ArgumentWithCustomDefinitionRuleRule test = new ArgumentWithCustomDefinitionRuleRule();
+
+            bool returnTrue = ((IArgumentDefinitionRule<ArgumentWithCustomDefinitionRule>)test).ReturnTrue(new ArgumentWithCustomDefinitionRule());
+
+            Assert.That(returnTrue, Is.True);
         }
     }
 }

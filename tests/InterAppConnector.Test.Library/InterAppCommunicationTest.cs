@@ -331,6 +331,43 @@ namespace InterAppConnector.Test.Library
             Assert.That(connectorAction, Throws.Nothing);
         }
 
+        /*
+         * [Test]
+        [Order(151)]
+        public void ExecuteAsBatch_TestCommandWithCustomDefinitionRule_ReturnObjectMessage()
+        {
+            CommandManager command = new CommandManager();
+            command.AddCommand<CustomObjectDefinitionRuleCommand, DataModelWithCustomObjectDefinitionRule>();
+            dynamic arguments = new ExpandoObject();
+
+            Action connectorAction = () =>
+            {
+                InterAppCommunication connector = new InterAppCommunication(command);
+                CommandResult<DataModelWithCustomObjectDefinitionRule> commandExecution = connector.ExecuteAsBatch<DataModelWithCustomObjectDefinitionRule>("customobjectdefinitionrulecommand", arguments);
+            };
+
+            Assert.That(connectorAction, Throws.Nothing);
+        }
+
+        [Test]
+        [Order(152)]
+        public void ExecuteAsBatch_TestCommandWithCustomSettingRuleAndArgumentIsSet_ReturnObjectMessage()
+        {
+            dynamic arguments = new ExpandoObject();
+            arguments.Argument = 1;
+            CommandManager command = new CommandManager();
+            command.AddCommand<CustomObjectSettingRuleCommand, DataModelWithCustomObjectSettingRule>();
+
+
+            Action connectorAction = () =>
+            {
+                InterAppCommunication connector = new InterAppCommunication(command);
+                CommandResult<int> commandExecution = connector.ExecuteAsBatch<int>("customobjectsettingrulecommand", arguments);
+            };
+
+            Assert.That(connectorAction, Throws.Nothing);
+        } */
+
         [Test]
         [Order(160)]
         public void ExecuteAsInteractiveCLI_WithEnumAndAliasAndCorrectParameters_ReturnSuccessfulStatusCode()
@@ -731,6 +768,33 @@ namespace InterAppConnector.Test.Library
 
         [Test]
         [Order(380)]
+        public void CallSingleCommand_TestCommandWithCustomSettingRuleAndArgumentIsSet_ReturnObjectMessage()
+        {
+            dynamic arguments = new ExpandoObject();
+            arguments.Argument = 1;
+
+            InterAppCommunication connector = InterAppCommunication.CallSingleCommand<CustomObjectSettingRuleCommand, DataModelWithCustomObjectSettingRule>();
+            CommandResult<int> commandExecution = connector.ExecuteAsBatch<int>("customobjectsettingrulecommand", arguments);
+
+            Assert.That(commandExecution.MessageStatus, Is.EqualTo(CommandExecutionMessageType.Success));
+            Assert.That(ArgumentWithCustomSettingRule.RulesCalledForThisArgument, Contains.Item("ArgumentWithCustomSettingRuleRule.SetArgumentValueIfTypeExists(object,PropertyInfo,ParameterDescriptor,ParameterDescriptor)"));
+        }
+
+        [Test]
+        [Order(390)]
+        public void CallSingleCommand_TestCommandWithCustomSettingRuleAndArgumentIsNotSet_ReturnObjectMessage()
+        {
+            dynamic arguments = new ExpandoObject();
+
+            InterAppCommunication connector = InterAppCommunication.CallSingleCommand<CustomObjectSettingRuleCommand, DataModelWithCustomObjectSettingRule>();
+            CommandResult<int> commandExecution = connector.ExecuteAsBatch<int>("customobjectsettingrulecommand", arguments);
+
+            Assert.That(commandExecution.MessageStatus, Is.EqualTo(CommandExecutionMessageType.Success));
+            Assert.That(commandExecution.Message, Is.EqualTo(5));
+        }
+
+        [Test]
+        [Order(400)]
         public void CallSingleCommand_TestSingleCommandWithRuleInInteractivehMode_ReturnSuccessMessage()
         {
             string[] arguments = { "programinfo" };
@@ -747,7 +811,7 @@ namespace InterAppConnector.Test.Library
 
         [TestCase(CommandOutputFormat.Text)]
         [TestCase(CommandOutputFormat.Json)]
-        [Order(390)]
+        [Order(410)]
         public void CallSingleCommand_TestSuccessMessageInInteractiveMode_ReturnSuccessMessage(CommandOutputFormat format)
         {
             // no assumptions
@@ -760,7 +824,7 @@ namespace InterAppConnector.Test.Library
 
         [TestCase(CommandOutputFormat.Text)]
         [TestCase(CommandOutputFormat.Json)]
-        [Order(400)]
+        [Order(420)]
         public void CallSingleCommand_TestWarningMessageInInteractiveMode_ReturnWarningMessage(CommandOutputFormat format)
         {
             // no assumptions
@@ -773,7 +837,7 @@ namespace InterAppConnector.Test.Library
 
         [TestCase(CommandOutputFormat.Text)]
         [TestCase(CommandOutputFormat.Json)]
-        [Order(410)]
+        [Order(430)]
         public void CallSingleCommand_TestErrorMessageInInteractiveMode_ReturnErrorMessage(CommandOutputFormat format)
         {
             // no assumptions

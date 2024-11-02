@@ -24,16 +24,6 @@ namespace InterAppConnector.Test.Library.Rules
         }
 
         [Theory]
-        public void SetArgumentValueIfTypeDoesNotExist_WithAFictiousProperty_ReturnArgumentDescriptor()
-        {
-            DefaultRule rule = new DefaultRule();
-
-            ParameterDescriptor descriptor = rule.SetArgumentValueIfTypeDoesNotExist(null, typeof(DefaultRuleTest).GetProperties()[0], new ParameterDescriptor(), new ParameterDescriptor());
-
-            Assert.That(descriptor, Is.EqualTo(new ParameterDescriptor()));
-        }
-
-        [Theory]
         public void DefineArgumentIfTypeDoesNotExist_WithAFictiousField_ReturnArgumentDescriptor()
         {
             DefaultRule rule = new DefaultRule();

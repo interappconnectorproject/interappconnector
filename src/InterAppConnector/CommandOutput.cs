@@ -246,7 +246,7 @@ namespace InterAppConnector
                 CommandResult<T> parsedMessage = JsonSerializer.Deserialize<CommandResult<T>>(messageToParse);
                 result = parsedMessage;
             }
-            catch (Exception)
+            catch
             {
                 JsonDocument document;
                 try
