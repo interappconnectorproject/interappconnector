@@ -275,7 +275,7 @@ namespace InterAppConnector
             return targetArgument;
         }
 
-        private static void ExecuteSettingRules(object currentParameterObject, List<IArgumentSettingRule> rulesNotExecuted)
+        private void ExecuteSettingRules(object currentParameterObject, List<IArgumentSettingRule> rulesNotExecuted)
         {
             foreach (IArgumentSettingRule rule in (from rule in rulesNotExecuted
                                                    where !RuleManager.IsSpecializedRule(rule)
@@ -290,7 +290,12 @@ namespace InterAppConnector
                                                                                && rule.GetType().GetInterface(typeof(IArgumentSettingRule<>).FullName!)!.GetGenericArguments()[0] == argument.PropertyType
                                                                                select new { argument, rule }).ToDictionary(item => item.argument, item => item.rule))
             {
-                rule.Value.SetArgumentValueIfTypeDoesNotExist(currentParameterObject, currentParameterObject.GetType().GetProperty(rule.Key.Name)!, null!, null!);
+                ParameterDescriptor currentParameter = (from parameters in _arguments.Values
+                                                        from parameter in parameters.Arguments.Values
+                                                        where parameter.OriginalPropertyName == currentParameterObject.GetType().GetProperty(rule.Key.Name)!.Name
+                                                        select parameter).First();
+
+                rule.Value.SetArgumentValueIfTypeDoesNotExist(currentParameterObject, currentParameterObject.GetType().GetProperty(rule.Key.Name)!, currentParameter, null!);
             }
         }
     }
