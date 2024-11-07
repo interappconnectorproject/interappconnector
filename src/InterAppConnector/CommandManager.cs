@@ -6,6 +6,9 @@ using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Linq;
+using System;
+using System.Data;
+using InterAppConnector.Enumerations;
 
 [assembly: InternalsVisibleTo("InterAppConnector.Test.Library")]
 namespace InterAppConnector
@@ -43,14 +46,18 @@ namespace InterAppConnector
             _currentCommand = command;
         }
 
-        internal CommandManager SetArguments(List<string> actions, List<ParameterDescriptor> argument)
+        internal CommandManager SetArguments(List<string> actions, List<ParameterDescriptor> argumentsSetByTheUser)
         {
             string? selectedCommand = GetActionKeyByActions(actions);
             if (selectedCommand != default)
             {
                 SetCommand(_commands[selectedCommand]);
                 object currentParameterObject = _parameterObject[selectedCommand];
-                foreach (ParameterDescriptor item in argument)
+                List<IArgumentSettingRule> rulesNotExecuted = new List<IArgumentSettingRule>();
+                List<IArgumentSettingRule> rulesToExecute = RuleManager.GetAssemblyRules<IArgumentSettingRule>(typeof(CommandManager));
+                rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentSettingRule>(AppDomain.CurrentDomain.GetAssemblies()));
+                rulesNotExecuted.AddRange(rulesToExecute);
+                foreach (ParameterDescriptor item in argumentsSetByTheUser)
                 {
                     ParameterDescriptor? findArgument = (from value in _arguments[selectedCommand].Arguments.Values
                                                          where value.Name.ToLower().Trim() == item.Name.ToLower().Trim()
@@ -59,48 +66,22 @@ namespace InterAppConnector
 
                     if (findArgument != default(ParameterDescriptor))
                     {
-                        List<Attribute> distinctAttributes = RuleManager.GetDistinctAttributes(findArgument.Attributes);
-                        List<IArgumentSettingRule> rulesToExecute = RuleManager.GetAssemblyRules<IArgumentSettingRule>(typeof(CommandManager));
-
-                        foreach (Attribute attribute in distinctAttributes)
-                        {
-                            rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentSettingRule>(attribute.GetType()));
-                        }
-
-                        rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentSettingRule>(findArgument.ParameterType));
-
                         foreach (var rule in from IArgumentSettingRule rule in rulesToExecute
                                              where rule.IsRuleEnabledInArgumentSetting(currentParameterObject.GetType().GetProperty(findArgument.OriginalPropertyName)!)
                                              select rule)
                         {
-                            /*
-                             * A default rule does not have an interface with an argument type,
-                             * so you have to consider also this case
-                             */
-                            if (RuleManager.IsSpecializedRule(rule))
-                            {
-                                Type argumentType = rule.GetType().GetInterface(typeof(IArgumentSettingRule<>).FullName!)!.GetGenericArguments()[0];
-
-                                Attribute? attributeExists = (from distinctAttribute in distinctAttributes
-                                                              where distinctAttribute.GetType() == argumentType
-                                                              select distinctAttribute).FirstOrDefault();
-
-                                if (attributeExists != default(Attribute))
-                                {
-                                    findArgument = rule.SetArgumentValueIfTypeExists(currentParameterObject, currentParameterObject.GetType().GetProperty(findArgument.OriginalPropertyName)!, findArgument, item);
-                                }
-                                else
-                                {
-                                    findArgument = rule.SetArgumentValueIfTypeDoesNotExist(currentParameterObject, currentParameterObject.GetType().GetProperty(findArgument.OriginalPropertyName)!, findArgument, item);
-                                }
-                            }
-                            else
-                            {
-                                findArgument = rule.SetArgumentValueIfTypeExists(currentParameterObject, currentParameterObject.GetType().GetProperty(findArgument.OriginalPropertyName)!, findArgument, item);
-                            }
+                            findArgument = ExecuteSettingRules(rule, currentParameterObject, findArgument, item, rulesNotExecuted);
                         }
                     }
                 }
+
+                /*
+                 * After executing the rules for the parameters set by the user, it is necessary 
+                 * to execute the rules for the remaining arguments defined in the command 
+                 * Be aware that there is a special rule (the generic one) that should be also executed
+                 */
+                ExecuteSettingRules(currentParameterObject, rulesNotExecuted);
+
             }
             return this;
         }
@@ -252,6 +233,70 @@ namespace InterAppConnector
                 }
             }
             return commandExecuted;
+        }
+
+        private static ParameterDescriptor ExecuteSettingRules(IArgumentSettingRule rule, object currentParameterObject, ParameterDescriptor targetArgument, ParameterDescriptor argumentSetByTheUser, List<IArgumentSettingRule> rulesNotExecuted)
+        {
+            /*
+             * A default rule does not have an interface with an argument type,
+             * so you have to consider also this case
+             */
+            if (RuleManager.IsAttributeSpecializedRule(rule))
+            {
+                Type argumentType = rule.GetType().GetInterface(typeof(IArgumentSettingRule<>).FullName!)!.GetGenericArguments()[0];
+
+                Attribute? attributeExists = (from distinctAttribute in RuleManager.GetDistinctAttributes(targetArgument.Attributes)
+                                              where distinctAttribute.GetType() == argumentType
+                                              select distinctAttribute).FirstOrDefault();
+
+                if (attributeExists != default(Attribute))
+                {
+                    targetArgument = rule.SetArgumentValueIfTypeExists(currentParameterObject, currentParameterObject.GetType().GetProperty(targetArgument.OriginalPropertyName)!, targetArgument, argumentSetByTheUser);
+                }
+                else
+                {
+                    targetArgument = rule.SetArgumentValueIfTypeDoesNotExist(currentParameterObject, currentParameterObject.GetType().GetProperty(targetArgument.OriginalPropertyName)!, targetArgument, argumentSetByTheUser);
+                }
+                rulesNotExecuted.Remove(rule);
+            }
+            else if (RuleManager.IsObjectSpecializedRule(rule))
+            {
+                if (rule.GetType().GetInterface(typeof(IArgumentSettingRule<>).FullName!)!.GetGenericArguments()[0] == currentParameterObject.GetType().GetProperty(targetArgument.OriginalPropertyName)!.PropertyType)
+                {
+                    targetArgument = rule.SetArgumentValueIfTypeExists(currentParameterObject, currentParameterObject.GetType().GetProperty(targetArgument.OriginalPropertyName)!, targetArgument, argumentSetByTheUser);
+                    rulesNotExecuted.Remove(rule);
+                }
+            }
+            else
+            {
+                targetArgument = rule.SetArgumentValueIfTypeExists(currentParameterObject, currentParameterObject.GetType().GetProperty(targetArgument.OriginalPropertyName)!, targetArgument, argumentSetByTheUser);
+                rulesNotExecuted.Remove(rule);
+            }
+            return targetArgument;
+        }
+
+        private void ExecuteSettingRules(object currentParameterObject, List<IArgumentSettingRule> rulesNotExecuted)
+        {
+            foreach (IArgumentSettingRule rule in (from rule in rulesNotExecuted
+                                                   where !RuleManager.IsSpecializedRule(rule)
+                                                   select rule).ToList())
+            {
+                rule.SetArgumentValueIfTypeDoesNotExist(currentParameterObject, (PropertyInfo)null!, null!, null!);
+            }
+
+            foreach (KeyValuePair<PropertyInfo, IArgumentSettingRule> rule in (from rule in rulesNotExecuted
+                                                                               from argument in currentParameterObject.GetType().GetProperties()
+                                                                               where RuleManager.IsObjectSpecializedRule(rule)
+                                                                               && rule.GetType().GetInterface(typeof(IArgumentSettingRule<>).FullName!)!.GetGenericArguments()[0] == argument.PropertyType
+                                                                               select new { argument, rule }).ToDictionary(item => item.argument, item => item.rule))
+            {
+                ParameterDescriptor currentParameter = (from parameters in _arguments.Values
+                                                        from parameter in parameters.Arguments.Values
+                                                        where parameter.OriginalPropertyName == currentParameterObject.GetType().GetProperty(rule.Key.Name)!.Name
+                                                        select parameter).First();
+
+                rule.Value.SetArgumentValueIfTypeDoesNotExist(currentParameterObject, currentParameterObject.GetType().GetProperty(rule.Key.Name)!, currentParameter, null!);
+            }
         }
     }
 }

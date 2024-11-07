@@ -1,6 +1,6 @@
 ﻿namespace InterAppConnector.Test.Library.DataModels
 {
-    public class ArgumentWithCustomRule
+    public class ArgumentWithCustomDefinitionRule
     {
         public int Count { get; set; }
     }

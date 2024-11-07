@@ -1,4 +1,5 @@
-﻿using InterAppConnector.Interfaces;
+﻿using InterAppConnector.Enumerations;
+using InterAppConnector.Interfaces;
 using System.Reflection;
 
 namespace InterAppConnector
@@ -78,6 +79,22 @@ namespace InterAppConnector
             return rules;
         }
 
+        internal static List<RuleType> GetAssemblyRules<RuleType>(Assembly[] assemblies)
+        {
+            List<RuleType> rules = new List<RuleType>();
+
+            foreach (Type currentType in (from assembly in assemblies
+                                          from type in assembly.DefinedTypes
+                                          where type.GetInterface(typeof(RuleType).FullName!) != null
+                                          && !type.ContainsGenericParameters && !type.IsInterface
+                                          select type).ToList())
+            {
+                rules.Add((RuleType)Activator.CreateInstance(currentType)!);
+            }
+
+            return rules;
+        }
+
         internal static List<RuleType> MergeRules<RuleType>(List<RuleType> initialRules, List<RuleType> rulesToMerge)
         {
             Dictionary<string, RuleType> rules = new Dictionary<string, RuleType>();
@@ -112,11 +129,27 @@ namespace InterAppConnector
                                                select item).Any();
         }
 
+        internal static bool IsAttributeSpecializedRule(IArgumentSettingRule rule)
+        {
+            return IsSpecializedRule(rule) && (from item in rule.GetType().GetInterfaces()
+                                               where item.GenericTypeArguments.Length > 0
+                                               where item.GenericTypeArguments[0].IsSubclassOf(typeof(Attribute))
+                                               select item).Any();
+        }
+
         internal static bool IsObjectSpecializedRule(IArgumentDefinitionRule rule)
         {
             return IsSpecializedRule(rule) && (from item in rule.GetType().GetInterfaces()
                                                where item.GenericTypeArguments.Length > 0
                                                where !item.GenericTypeArguments[0].IsSubclassOf(typeof(Attribute)) 
+                                               select item).Any();
+        }
+
+        internal static bool IsObjectSpecializedRule(IArgumentSettingRule rule)
+        {
+            return IsSpecializedRule(rule) && (from item in rule.GetType().GetInterfaces()
+                                               where item.GenericTypeArguments.Length > 0
+                                               where !item.GenericTypeArguments[0].IsSubclassOf(typeof(Attribute))
                                                select item).Any();
         }
     }

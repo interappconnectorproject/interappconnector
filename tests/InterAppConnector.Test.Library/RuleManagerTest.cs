@@ -1,19 +1,16 @@
-﻿using InterAppConnector.Interfaces;
+﻿using InterAppConnector.Enumerations;
+using InterAppConnector.Interfaces;
 using InterAppConnector.Rules;
+using InterAppConnector.Test.Library.DataModels;
 using InterAppConnector.Test.Library.Rules;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace InterAppConnector.Test.Library
 {
     public class RuleManagerTest
     {
         [Test]
-        public void IsAttributeSpecializedRule_WithBuiltInAttributeRule_ReturnTrue()
+        public void IsAttributeSpecializedRule_WithBuiltInAttributeDefinitionRule_ReturnTrue()
         {
             // no assumptions
 
@@ -27,17 +24,17 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
-        public void IsAttributeSpecializedRule_WithCustomObjectRule_ReturnFalse()
+        public void IsAttributeSpecializedRule_WithCustomObjectDefinitionRule_ReturnFalse()
         {
             // no assumptions
 
             // no commands
 
-            Assert.That(RuleManager.IsAttributeSpecializedRule(new CustomObjectDefinitionRule()), Is.False);
+            Assert.That(RuleManager.IsAttributeSpecializedRule(new ArgumentWithCustomDefinitionRuleRule()), Is.False);
         }
 
-        [TestCase]
-        public void IsObjectSpecializedRule_WithBuiltInAttributeRule_ReturnFalse()
+        [Test]
+        public void IsObjectSpecializedRule_WithBuiltInAttributeDefinitionRule_ReturnFalse()
         {
             // no assumptions
 
@@ -51,13 +48,57 @@ namespace InterAppConnector.Test.Library
         }
 
         [Test]
-        public void IsObjectSpecializedRule_WithCustomObjectRule_ReturnTrue()
+        public void IsObjectSpecializedRule_WithCustomObjectDefinitionRule_ReturnTrue()
         {
             // no assumptions
 
             // no commands
 
-            Assert.That(RuleManager.IsObjectSpecializedRule(new CustomObjectDefinitionRule()), Is.True);
+            Assert.That(RuleManager.IsObjectSpecializedRule(new ArgumentWithCustomDefinitionRuleRule()), Is.True);
+        }
+
+        [Test]
+        public void IsAttributeSpecializedRule_WithBuiltInAttributeSettingRule_ReturnTrue()
+        {
+            // no assumptions
+
+            // no commands
+
+            Assert.That(RuleManager.IsAttributeSpecializedRule(new ValueValidatorRule()), Is.True);
+            Assert.That(RuleManager.IsAttributeSpecializedRule(new CustomInputStringRule()), Is.True);
+
+        }
+
+        [Test]
+        public void IsAttributeSpecializedRule_WithCustomObjectSettingRule_ReturnFalse()
+        {
+            // no assumptions
+
+            // no commands
+
+            Assert.That(RuleManager.IsAttributeSpecializedRule(new ArgumentWithCustomDefinitionRuleRule()), Is.False);
+        }
+
+        [Test]
+        public void IsObjectSpecializedRule_WithBuiltInAttributeSettingRule_ReturnFalse()
+        {
+            // no assumptions
+
+            // no commands
+
+            Assert.That(RuleManager.IsObjectSpecializedRule(new ValueValidatorRule()), Is.False);
+            Assert.That(RuleManager.IsObjectSpecializedRule(new CustomInputStringRule()), Is.False);
+
+        }
+
+        [Test]
+        public void IsObjectSpecializedRule_WithCustomObjectSettingRule_ReturnTrue()
+        {
+            // no assumptions
+
+            // no commands
+
+            Assert.That(RuleManager.IsObjectSpecializedRule(new ArgumentWithCustomDefinitionRuleRule()), Is.True);
         }
     }
 }
