@@ -17,20 +17,22 @@ namespace InterAppConnector.Test.Library.Rules
         public void DefineArgumentIfTypeExists_WithAFictiousField_ReturnNotImplementedException()
         {
             ExampleValueRule rule = new ExampleValueRule();
+            ParameterDescriptor newDescriptor = new ParameterDescriptor();
 
-            ParameterDescriptor descriptor = rule.DefineArgumentIfTypeExists(null, typeof(ExampleValueRuleTest).GetFields()[0], new ParameterDescriptor());
+            ParameterDescriptor descriptor = rule.DefineArgumentIfTypeExists(null, typeof(ExampleValueRuleTest).GetFields()[0], newDescriptor);
 
-            Assert.That(descriptor, Is.EqualTo(new ParameterDescriptor()));
+            Assert.That(descriptor, Is.EqualTo(newDescriptor));
         }
 
         [Theory]
         public void DefineArgumentIfTypeDoesNotExist_WithAFictiousField_ReturnNotImplementedException()
         {
             ExampleValueRule rule = new ExampleValueRule();
+            ParameterDescriptor newDescriptor = new ParameterDescriptor();
 
-            ParameterDescriptor descriptor = rule.DefineArgumentIfTypeDoesNotExist(null, typeof(ExampleValueRuleTest).GetFields()[0], new ParameterDescriptor());
+            ParameterDescriptor descriptor = rule.DefineArgumentIfTypeDoesNotExist(null, typeof(ExampleValueRuleTest).GetFields()[0], newDescriptor);
 
-            Assert.That(descriptor, Is.EqualTo(new ParameterDescriptor()));
+            Assert.That(descriptor, Is.EqualTo(newDescriptor));
         }
     }
 }

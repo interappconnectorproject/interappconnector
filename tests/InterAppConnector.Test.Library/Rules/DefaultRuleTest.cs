@@ -17,30 +17,33 @@ namespace InterAppConnector.Test.Library.Rules
         public void SetArgumentValueIfTypeDoesNotExist_WithAFictiousField_ReturnArgumentDescriptor()
         {
             DefaultRule rule = new DefaultRule();
+            ParameterDescriptor newDescriptor = new ParameterDescriptor();
 
-            ParameterDescriptor descriptor = rule.SetArgumentValueIfTypeDoesNotExist(null, typeof(DefaultRuleTest).GetFields()[0], new ParameterDescriptor(), new ParameterDescriptor());
+            ParameterDescriptor descriptor = rule.SetArgumentValueIfTypeDoesNotExist(null, typeof(DefaultRuleTest).GetFields()[0], newDescriptor, new ParameterDescriptor());
 
-            Assert.That(descriptor, Is.EqualTo(new ParameterDescriptor()));
+            Assert.That(descriptor, Is.EqualTo(newDescriptor));
         }
 
         [Theory]
         public void DefineArgumentIfTypeDoesNotExist_WithAFictiousField_ReturnArgumentDescriptor()
         {
             DefaultRule rule = new DefaultRule();
+            ParameterDescriptor newDescriptor = new ParameterDescriptor();
 
-            ParameterDescriptor descriptor = rule.DefineArgumentIfTypeDoesNotExist(null, typeof(DefaultRuleTest).GetFields()[0], new ParameterDescriptor());
+            ParameterDescriptor descriptor = rule.DefineArgumentIfTypeDoesNotExist(null, typeof(DefaultRuleTest).GetFields()[0], newDescriptor);
 
-            Assert.That(descriptor, Is.EqualTo(new ParameterDescriptor()));
+            Assert.That(descriptor, Is.EqualTo(newDescriptor));
         }
 
         [Theory]
         public void DefineArgumentIfTypeDoesNotExist_WithAFictiousProperty_ReturnArgumentDescriptor()
         {
             DefaultRule rule = new DefaultRule();
+            ParameterDescriptor newDescriptor = new ParameterDescriptor();
 
-            ParameterDescriptor descriptor = rule.DefineArgumentIfTypeDoesNotExist(null, typeof(DefaultRuleTest).GetProperties()[0], new ParameterDescriptor());
+            ParameterDescriptor descriptor = rule.DefineArgumentIfTypeDoesNotExist(null, typeof(DefaultRuleTest).GetProperties()[0], newDescriptor);
 
-            Assert.That(descriptor, Is.EqualTo(new ParameterDescriptor()));
+            Assert.That(descriptor, Is.EqualTo(newDescriptor));
         }
 
         [Theory]
@@ -57,10 +60,11 @@ namespace InterAppConnector.Test.Library.Rules
         public void SetArgumentValueIfTypeExists_WithAFictiousField_ReturnArgumentDescriptor()
         {
             DefaultRule rule = new DefaultRule();
+            ParameterDescriptor newDescriptor = new ParameterDescriptor();
 
-            ParameterDescriptor descriptor = rule.SetArgumentValueIfTypeExists(null, typeof(DefaultRuleTest).GetFields()[0], new ParameterDescriptor(), new ParameterDescriptor());
+            ParameterDescriptor descriptor = rule.SetArgumentValueIfTypeExists(null, typeof(DefaultRuleTest).GetFields()[0], newDescriptor, new ParameterDescriptor());
 
-            Assert.That(descriptor, Is.EqualTo(new ParameterDescriptor()));
+            Assert.That(descriptor, Is.EqualTo(newDescriptor));
         }
     }
 }
