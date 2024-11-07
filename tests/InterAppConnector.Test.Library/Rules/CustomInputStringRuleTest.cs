@@ -27,20 +27,22 @@ namespace InterAppConnector.Test.Library.Rules
         public void SetArgumentValueIfTypeDoesNotExist_WithAFictiousField_ReturnNotImplementedException()
         {
             CustomInputStringRule rule = new CustomInputStringRule();
+            ParameterDescriptor newDescriptor = new ParameterDescriptor();
 
-            ParameterDescriptor descriptor = rule.SetArgumentValueIfTypeDoesNotExist(null, typeof(CustomInputStringRuleTest).GetFields()[0], new ParameterDescriptor(), new ParameterDescriptor());
+            ParameterDescriptor descriptor = rule.SetArgumentValueIfTypeDoesNotExist(null, typeof(CustomInputStringRuleTest).GetFields()[0], newDescriptor, new ParameterDescriptor());
 
-            Assert.That(descriptor, Is.EqualTo(new ParameterDescriptor()));
+            Assert.That(descriptor, Is.EqualTo(newDescriptor));
         }
 
         [Theory]
         public void SetArgumentValueIfTypeExists_WithAFictiousField_ReturnNotImplementedException()
         {
             CustomInputStringRule rule = new CustomInputStringRule();
+            ParameterDescriptor newDescriptor = new ParameterDescriptor();
 
-            ParameterDescriptor descriptor = rule.SetArgumentValueIfTypeExists(null, typeof(CustomInputStringRuleTest).GetFields()[0], new ParameterDescriptor(), new ParameterDescriptor());
+            ParameterDescriptor descriptor = rule.SetArgumentValueIfTypeExists(null, typeof(CustomInputStringRuleTest).GetFields()[0], newDescriptor, new ParameterDescriptor());
 
-            Assert.That(descriptor, Is.EqualTo(new ParameterDescriptor()));
+            Assert.That(descriptor, Is.EqualTo(newDescriptor));
         }
     }
 }
