@@ -2,13 +2,9 @@
 using InterAppConnector.DataModels;
 using InterAppConnector.Exceptions;
 using InterAppConnector.Interfaces;
-using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Linq;
-using System;
 using System.Data;
-using InterAppConnector.Enumerations;
 
 [assembly: InternalsVisibleTo("InterAppConnector.Test.Library")]
 namespace InterAppConnector
@@ -25,12 +21,19 @@ namespace InterAppConnector
         
         private static ICommand? _currentCommand;
 
+        private readonly List<Type> definedRules = new List<Type>();
+
         internal static ICommand? CurrentCommand 
         {
             get
             {
                 return _currentCommand;
             }
+        }
+
+        public CommandManager()
+        {
+            definedRules = RuleManager.GetAllRules(new List<Assembly> { typeof(CommandManager).Assembly });
         }
 
         internal string? GetActionKeyByActions(List<string> actions)
@@ -54,8 +57,8 @@ namespace InterAppConnector
                 SetCommand(_commands[selectedCommand]);
                 object currentParameterObject = _parameterObject[selectedCommand];
                 List<IArgumentSettingRule> rulesNotExecuted = new List<IArgumentSettingRule>();
-                List<IArgumentSettingRule> rulesToExecute = RuleManager.GetAssemblyRules<IArgumentSettingRule>(typeof(CommandManager));
-                rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentSettingRule>(AppDomain.CurrentDomain.GetAssemblies()));
+                List<IArgumentSettingRule> rulesToExecute = RuleManager.GetAssemblyRules<IArgumentSettingRule>(typeof(CommandManager).Assembly);
+                rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentSettingRule>(definedRules));
                 rulesNotExecuted.AddRange(rulesToExecute);
                 foreach (ParameterDescriptor item in argumentsSetByTheUser)
                 {
@@ -140,18 +143,16 @@ namespace InterAppConnector
                     throw new DuplicateObjectException(className, argument.Action, findIfCommandAlreadyExists.Key, "The commnd " + string.Join(" ", argument.Action) + " in " + className + " is already defined in " + findIfCommandAlreadyExists.Key);
                 }
 
+                List<IArgumentDefinitionRule> rulesNotExecuted = new List<IArgumentDefinitionRule>();
+                List<IArgumentDefinitionRule> rulesToExecute = RuleManager.GetAssemblyRules<IArgumentDefinitionRule>(typeof(CommandManager).Assembly);
+                rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentDefinitionRule>(definedRules));
+                rulesNotExecuted.AddRange(rulesToExecute);
+
                 foreach (PropertyInfo parameterProperty in parameterObject.GetType().GetProperties())
                 {
                     List<Attribute> distinctAttributes = RuleManager.GetDistinctAttributes(parameterProperty);
                     ParameterDescriptor descriptor = new ParameterDescriptor();
-                    List<IArgumentDefinitionRule> rulesToExecute = RuleManager.GetAssemblyRules<IArgumentDefinitionRule>(typeof(CommandManager));
 
-                    foreach (Attribute attribute in distinctAttributes)
-                    {
-                        rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentDefinitionRule>(attribute.GetType()));
-                    }
-
-                    rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentDefinitionRule>(parameterProperty.PropertyType));
 
                     foreach (var rule in from IArgumentDefinitionRule rule in rulesToExecute
                                          where rule.IsRuleEnabledInArgumentDefinition(parameterProperty)
@@ -173,17 +174,20 @@ namespace InterAppConnector
                             {
                                 descriptor = rule.DefineArgumentIfTypeDoesNotExist(parameterObject, parameterProperty, descriptor);
                             }
+                            rulesNotExecuted.Remove(rule);
                         }
                         else if (RuleManager.IsObjectSpecializedRule(rule))
                         {
                             if (rule.GetType().GetInterface(typeof(IArgumentDefinitionRule<>).FullName!)!.GetGenericArguments()[0] == parameterProperty.PropertyType)
                             {
                                 descriptor = rule.DefineArgumentIfTypeExists(parameterObject, parameterProperty, descriptor);
+                                rulesNotExecuted.Remove(rule);
                             }                            
                         }
                         else
                         {
                             descriptor = rule.DefineArgumentIfTypeExists(parameterObject, parameterProperty, descriptor);
+                            rulesNotExecuted.Remove(rule);
                         }
                     }
 
@@ -209,6 +213,13 @@ namespace InterAppConnector
                     {
                         argument.Arguments.Add(descriptor.Name, descriptor);
                     }
+                }
+
+                foreach (IArgumentDefinitionRule rule in (from item in rulesNotExecuted
+                                                          where item.IsRuleEnabledInArgumentDefinition(((PropertyInfo) null!))
+                                                          select item).ToList())
+                {
+                    rule.DefineArgumentIfTypeDoesNotExist(parameterObject, (PropertyInfo) null!, null!);
                 }
                 _arguments.Add(className, argument);
             }
@@ -279,6 +290,7 @@ namespace InterAppConnector
         {
             foreach (IArgumentSettingRule rule in (from rule in rulesNotExecuted
                                                    where !RuleManager.IsSpecializedRule(rule)
+                                                   && rule.IsRuleEnabledInArgumentSetting((PropertyInfo) null!)
                                                    select rule).ToList())
             {
                 rule.SetArgumentValueIfTypeDoesNotExist(currentParameterObject, (PropertyInfo)null!, null!, null!);
@@ -288,6 +300,7 @@ namespace InterAppConnector
                                                                                from argument in currentParameterObject.GetType().GetProperties()
                                                                                where RuleManager.IsObjectSpecializedRule(rule)
                                                                                && rule.GetType().GetInterface(typeof(IArgumentSettingRule<>).FullName!)!.GetGenericArguments()[0] == argument.PropertyType
+                                                                               && rule.IsRuleEnabledInArgumentSetting(argument)
                                                                                select new { argument, rule }).ToDictionary(item => item.argument, item => item.rule))
             {
                 ParameterDescriptor currentParameter = (from parameters in _arguments.Values

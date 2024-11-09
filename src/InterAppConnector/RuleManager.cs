@@ -63,11 +63,30 @@ namespace InterAppConnector
             return attributes;
         }
 
-        internal static List<RuleType> GetAssemblyRules<RuleType>(Type assemblyType)
+        internal static List<Type> GetAllRules(List<Assembly> excludedAssemblies)
+        {
+            List<Type> rules = new List<Type>();
+            List<Assembly> assemblies = new List<Assembly>();
+            assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies().Except(excludedAssemblies));
+
+            foreach (Type currentType in (from assembly in assemblies
+                                          from type in assembly.DefinedTypes
+                                          where (type.GetInterface(typeof(IArgumentDefinitionRule).FullName!) != null
+                                          || type.GetInterface(typeof(IArgumentSettingRule).FullName!) != null)
+                                          && !type.ContainsGenericParameters && !type.IsInterface
+                                          select type).ToList())
+            {
+                rules.Add(currentType);
+            }
+
+            return rules;
+        }
+
+        internal static List<RuleType> GetAssemblyRules<RuleType>(List<Type> types)
         {
             List<RuleType> rules = new List<RuleType>();
 
-            foreach (Type currentType in assemblyType.Assembly.ExportedTypes)
+            foreach (Type currentType in types)
             {
                 if (currentType.GetInterface(typeof(RuleType).FullName!) != null
                     && !currentType.ContainsGenericParameters && !currentType.IsInterface)
@@ -79,17 +98,17 @@ namespace InterAppConnector
             return rules;
         }
 
-        internal static List<RuleType> GetAssemblyRules<RuleType>(Assembly[] assemblies)
+        internal static List<RuleType> GetAssemblyRules<RuleType>(Assembly assembly)
         {
             List<RuleType> rules = new List<RuleType>();
 
-            foreach (Type currentType in (from assembly in assemblies
-                                          from type in assembly.DefinedTypes
-                                          where type.GetInterface(typeof(RuleType).FullName!) != null
-                                          && !type.ContainsGenericParameters && !type.IsInterface
-                                          select type).ToList())
+            foreach (Type currentType in assembly.DefinedTypes)
             {
-                rules.Add((RuleType)Activator.CreateInstance(currentType)!);
+                if (currentType.GetInterface(typeof(RuleType).FullName!) != null
+                    && !currentType.ContainsGenericParameters && !currentType.IsInterface)
+                {
+                    rules.Add((RuleType)Activator.CreateInstance(currentType)!);
+                }
             }
 
             return rules;

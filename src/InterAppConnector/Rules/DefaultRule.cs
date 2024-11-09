@@ -49,7 +49,7 @@ namespace InterAppConnector.Rules
         {
             bool isRuleEnabled = true;
 
-            if (property.GetCustomAttribute<ExcludeItemFromCommandAttribute>() != null)
+            if (property == null || property.GetCustomAttribute<ExcludeItemFromCommandAttribute>() != null)
             {
                 isRuleEnabled = false;
             }
@@ -71,14 +71,21 @@ namespace InterAppConnector.Rules
 
         public bool IsRuleEnabledInArgumentSetting(PropertyInfo property)
         {
-            Type? parameterType = Nullable.GetUnderlyingType(property.PropertyType);
-            if (parameterType == null)
+            bool isRuleEnabled = true;
+
+            if (property != null)
             {
-                parameterType = property.PropertyType;
+                Type? parameterType = Nullable.GetUnderlyingType(property.PropertyType);
+                if (parameterType == null)
+                {
+                    parameterType = property.PropertyType;
+                }
+                bool isEnumType = parameterType.IsEnum;
+                bool isValueTypeAndIsNotAStruct = parameterType.IsValueType && !StructHelper.IsStruct(parameterType);
+                isRuleEnabled = isEnumType || isValueTypeAndIsNotAStruct || property.PropertyType == typeof(string);
             }
-            bool isEnumType = parameterType.IsEnum;
-            bool isValueTypeAndIsNotAStruct = parameterType.IsValueType && !StructHelper.IsStruct(parameterType);
-            return isEnumType || isValueTypeAndIsNotAStruct || property.PropertyType == typeof(string);
+
+            return isRuleEnabled;
         }
 
         public bool IsRuleEnabledInArgumentSetting(FieldInfo field)

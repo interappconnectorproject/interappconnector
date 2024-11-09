@@ -9,7 +9,7 @@ namespace InterAppConnector.App.CLI.SampleApplication
     {
         static void Main(string[] args)
         {
-            args = "programinfo".Split(' ');
+            // args = "programinfo".Split(' ');
             //args = "als -test fos".Split(' ');
             //args = "".Split(' ');
             CommandManager command = new CommandManager();

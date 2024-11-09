@@ -53,7 +53,7 @@ namespace InterAppConnector.Rules
         {
             bool isRuleEnabled = true;
 
-            if (property.GetCustomAttribute<ExcludeItemFromCommandAttribute>() != null)
+            if (property == null || property.GetCustomAttribute<ExcludeItemFromCommandAttribute>() != null)
             {
                 isRuleEnabled = false;
             }

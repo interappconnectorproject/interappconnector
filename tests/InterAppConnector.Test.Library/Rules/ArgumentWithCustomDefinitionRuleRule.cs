@@ -2,12 +2,7 @@
 using InterAppConnector.Interfaces;
 using InterAppConnector.Test.Library.DataModels;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace InterAppConnector.Test.Library.Rules
 {
@@ -15,17 +10,17 @@ namespace InterAppConnector.Test.Library.Rules
     {
         public ParameterDescriptor DefineArgumentIfTypeDoesNotExist(object parentObject, PropertyInfo property, ParameterDescriptor descriptor)
         {
-            throw new NotImplementedException();
+            return descriptor;
         }
 
         public ParameterDescriptor DefineArgumentIfTypeDoesNotExist(object parentObject, FieldInfo property, ParameterDescriptor descriptor)
         {
-            throw new NotImplementedException();
+            return descriptor;
         }
 
         public ParameterDescriptor DefineArgumentIfTypeExists(object parentObject, FieldInfo field, ParameterDescriptor descriptor)
         {
-            throw new NotImplementedException();
+            return descriptor;
         }
 
         public ParameterDescriptor DefineArgumentIfTypeExists(object parentObject, PropertyInfo property, ParameterDescriptor descriptor)
