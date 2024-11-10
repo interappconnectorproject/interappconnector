@@ -19,14 +19,14 @@ namespace InterAppConnector
                 {
                     List<Attribute> distinctAttributes = RuleManager.GetDistinctAttributes(item);
                     ParameterDescriptor descriptor = new ParameterDescriptor();
-                    List<IArgumentDefinitionRule> rulesToExecute = RuleManager.GetAssemblyRules<IArgumentDefinitionRule>(typeof(CommandManager));
+                    List<IArgumentDefinitionRule> rulesToExecute = RuleManager.GetAssemblyRules<IArgumentDefinitionRule>(typeof(CommandManager).Assembly);
 
                     foreach (Attribute attribute in distinctAttributes)
                     {
-                        rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentDefinitionRule>(attribute.GetType()));
+                        rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentDefinitionRule>(attribute.GetType().Assembly));
                     }
 
-                    rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentDefinitionRule>(item.DeclaringType!));
+                    rulesToExecute = RuleManager.MergeRules(rulesToExecute, RuleManager.GetAssemblyRules<IArgumentDefinitionRule>(item.DeclaringType!.Assembly));
 
                     foreach (var rule in from IArgumentDefinitionRule rule in rulesToExecute
                                          where rule.IsRuleEnabledInArgumentDefinition(item)
