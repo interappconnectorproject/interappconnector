@@ -165,7 +165,7 @@ namespace InterAppConnector.Test.Library
 
             command.AddCommand<MultipleArgumentTypeCommand, MultipleArgumentTypeDataModel>();
 
-            Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["name"].IsMandatory, Is.EqualTo(false));
+            Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["name"].IsMandatory, Is.EqualTo(true));
             Assert.That(command._arguments[typeof(MultipleArgumentTypeCommand).FullName].Arguments["fileinfo"].IsMandatory, Is.EqualTo(false));
         }
 
