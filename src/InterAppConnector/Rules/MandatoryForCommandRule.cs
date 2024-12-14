@@ -9,20 +9,9 @@ namespace InterAppConnector.Rules
     {
         public ParameterDescriptor DefineArgumentIfTypeDoesNotExist(object parentObject, PropertyInfo property, ParameterDescriptor descriptor)
         {
-            if (property.PropertyType.IsValueType)
+            if (!PropertyUtil.IsPropertyNullable(property))
             {
-                if (Nullable.GetUnderlyingType(property.PropertyType) == null)
-                {
-                    descriptor.IsMandatory = true;
-                }
-            }
-            else
-            {
-                if (property.GetValue(parentObject) != null)
-                {
-                    property.SetValue(parentObject, null);
-                    descriptor.IsMandatory = true;
-                }
+                descriptor.IsMandatory = true;
             }
             return descriptor;
         }

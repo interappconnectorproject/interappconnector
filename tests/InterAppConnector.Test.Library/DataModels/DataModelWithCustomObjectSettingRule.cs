@@ -8,6 +8,6 @@ namespace InterAppConnector.Test.Library.DataModels
 {
     public class DataModelWithCustomObjectSettingRule
     {
-        public ArgumentWithCustomSettingRule Argument { get; set; }
+        public ArgumentWithCustomSettingRule? Argument { get; set; }
     }
 }

@@ -1,7 +1,8 @@
-﻿using InterAppConnector.Test.SampleCommandsLibrary.DataModels;
+﻿using InterAppConnector.DataModels;
 using InterAppConnector.Test.SampleCommandsLibrary;
-using InterAppConnector.DataModels;
-using System.Dynamic;
+using InterAppConnector.Test.SampleCommandsLibrary.DataModels;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace InterAppConnector.App.CLI.SampleApplication
 {
@@ -25,5 +26,7 @@ namespace InterAppConnector.App.CLI.SampleApplication
             InterAppCommunication connector = new InterAppCommunication(command);
             connector.ExecuteAsInteractiveCLI(args);
         }
+
+
     }
 }
